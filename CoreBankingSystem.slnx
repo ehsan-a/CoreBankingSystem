@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CoreBanking.Api/CoreBanking.Api.csproj" />
+    <Project Path="src/CoreBanking.Application/CoreBanking.Application.csproj" />
+    <Project Path="src/CoreBanking.Domain/CoreBanking.Domain.csproj" />
+    <Project Path="src/CoreBanking.Infrastructure/CoreBanking.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/ExternalServices/">
+    <Project Path="src/ExternalServices/CentralBankCreditCheckService/CentralBankCreditCheckService.csproj" />
+    <Project Path="src/ExternalServices/CivilRegistryService/CivilRegistryService.csproj" />
+    <Project Path="src/ExternalServices/PoliceClearanceService/PoliceClearanceService.csproj" />
+  </Folder>
+</Solution>
