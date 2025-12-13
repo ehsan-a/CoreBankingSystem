@@ -19,11 +19,18 @@ namespace CoreBanking.Infrastructure.Repositories
             return await queryable.ToListAsync(cancellationToken);
         }
 
-        public async Task<T> GetByIdAsync(int id, ISpecification<T> spec, CancellationToken cancellationToken = default)
+        public async Task<T> GetByIdAsync(Guid id, ISpecification<T> spec, CancellationToken cancellationToken = default)
         {
             var queryable = _context.Set<T>().AsQueryable();
             queryable = SpecificationEvaluator<T>.GetQuery(queryable, spec);
-            return await queryable.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, cancellationToken);
+            return await queryable.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
+        }
+
+        public async Task<T> GetByNationalCodeAsync(string nationalCode, ISpecification<T> spec, CancellationToken cancellationToken = default)
+        {
+            var queryable = _context.Set<T>().AsQueryable();
+            queryable = SpecificationEvaluator<T>.GetQuery(queryable, spec);
+            return await queryable.FirstOrDefaultAsync(e => EF.Property<string>(e, "NationalCode") == nationalCode, cancellationToken);
         }
 
         public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
@@ -40,9 +47,14 @@ namespace CoreBanking.Infrastructure.Repositories
         {
             _context.Set<T>().Remove(entity);
         }
-        public async Task<bool> ExistsAsync(int id, ISpecification<T> spec, CancellationToken cancellationToken)
+        public async Task<bool> ExistsByIdAsync(Guid id, ISpecification<T> spec, CancellationToken cancellationToken)
         {
             var entity = await GetByIdAsync(id, spec, cancellationToken);
+            return entity != null;
+        }
+        public async Task<bool> ExistsByNationalCodeAsync(string nationalCode, ISpecification<T> spec, CancellationToken cancellationToken)
+        {
+            var entity = await GetByNationalCodeAsync(nationalCode, spec, cancellationToken);
             return entity != null;
         }
     }

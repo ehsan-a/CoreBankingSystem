@@ -19,7 +19,7 @@ namespace CoreBanking.Application.Services
             await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
-        public async Task DeleteAsync(int id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             var spec = new CustomerGetAllSpec();
             var item = await _unitOfWork.Customers.GetByIdAsync(id, spec, cancellationToken);
@@ -34,7 +34,7 @@ namespace CoreBanking.Application.Services
             return await _unitOfWork.Customers.GetAllAsync(spec, cancellationToken);
         }
 
-        public async Task<Customer?> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<Customer?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var spec = new CustomerGetAllSpec();
             return await _unitOfWork.Customers.GetByIdAsync(id, spec, cancellationToken);
@@ -45,10 +45,10 @@ namespace CoreBanking.Application.Services
             _unitOfWork.Customers.Update(customer);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
-        public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken)
+        public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
         {
             var spec = new CustomerGetAllSpec();
-            return await _unitOfWork.Customers.ExistsAsync(id, spec, cancellationToken);
+            return await _unitOfWork.Customers.ExistsByIdAsync(id, spec, cancellationToken);
         }
 
     }

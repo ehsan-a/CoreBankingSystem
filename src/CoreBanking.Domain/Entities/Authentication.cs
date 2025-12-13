@@ -6,11 +6,11 @@ namespace CoreBanking.Domain.Entities
 {
     public class Authentication
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string NationalCode { get; set; }
-        public DateTime Date { get; set; }
-        public bool CentralBankCreditCheckStatus { get; set; }
-        public bool CivilRegistryStatus { get; set; }
-        public bool PoliceClearanceStatus { get; set; }
+        public bool CentralBankCreditCheckPassed { get; set; }
+        public bool CivilRegistryVerified { get; set; }
+        public bool PoliceClearancePassed { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

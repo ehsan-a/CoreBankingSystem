@@ -2,6 +2,7 @@
 using CoreBanking.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace CoreBanking.Api.Controllers
@@ -18,7 +19,7 @@ namespace CoreBanking.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<AuthenticationResponseDto>> GetAuthentications(string id)
+        public async Task<ActionResult<AuthenticationResponseDto>> GetAuthentications(string id, CancellationToken cancellationToken)
         {
             var person = await _authenticationService.GetCivilRegistryAsync(id);
             if (person == null) return NotFound();
@@ -27,8 +28,24 @@ namespace CoreBanking.Api.Controllers
                 civilRegistry = await _authenticationService.GetCivilRegistryAsync(id),
                 centralBankCreditCheck = await _authenticationService.GetCentralBankCreditCheckAsync(id),
                 policeClearance = await _authenticationService.GetPoliceClearanceAsync(id),
+                RegisteredAuthentication = await _authenticationService.GetByNationalCodeAsync(id, cancellationToken)
             };
             return result;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<AuthenticationResponseDto>> PostAuthentications(AuthenticationResponseDto authenticationResponse, CancellationToken cancellationToken)
+        {
+            if (await _authenticationService.ExistsAsync(authenticationResponse.civilRegistry.NationalCode, cancellationToken))
+            {
+                return Conflict(new
+                {
+                    message = "Authentication already exists."
+                });
+            }
+            var result = await _authenticationService.CreateAsync(authenticationResponse, cancellationToken);
+
+            return CreatedAtAction("GetAuthentications", new { id = authenticationResponse.civilRegistry.NationalCode }, result);
         }
 
     }

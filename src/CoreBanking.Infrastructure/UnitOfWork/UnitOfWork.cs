@@ -15,6 +15,7 @@ namespace CoreBanking.Infrastructure.UnitOfWork
         public IGenericRepository<Customer> Customers { get; }
         public IGenericRepository<Account> Accounts { get; }
         public IGenericRepository<Transaction> Transactions { get; }
+        public IGenericRepository<Authentication> Authentications { get; }
 
         public UnitOfWork(CoreBankingContext context)
         {
@@ -23,6 +24,7 @@ namespace CoreBanking.Infrastructure.UnitOfWork
             Customers = new GenericRepository<Customer>(_context);
             Accounts = new GenericRepository<Account>(_context);
             Transactions = new GenericRepository<Transaction>(_context);
+            Authentications = new GenericRepository<Authentication>(_context);
         }
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
