@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\CoreBanking.Application\CoreBanking.Application.csproj" />
+    <ProjectReference Include="..\CoreBanking.Domain\CoreBanking.Domain.csproj" />
+    <ProjectReference Include="..\CoreBanking.Infrastructure\CoreBanking.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

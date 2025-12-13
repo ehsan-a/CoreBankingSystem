@@ -1,1 +1,6 @@
-@CoreBanking.Api_HostAddress = http://localhost:5240
+@CoreBanking.Api_HostAddress = https://localhost:7065
+
+@id=0012345678
+GET {{CoreBanking.Api_HostAddress}}/api/authentications/{{id}}
+
+###

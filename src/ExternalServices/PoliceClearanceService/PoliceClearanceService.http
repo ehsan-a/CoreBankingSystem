@@ -1,1 +1,6 @@
-@PoliceClearanceService_HostAddress = http://localhost:5141
+@PoliceClearanceService_HostAddress = https://localhost:7066
+
+@id=0012345678
+GET {{PoliceClearanceService_HostAddress}}/api/policeclearance/{{id}}
+
+###

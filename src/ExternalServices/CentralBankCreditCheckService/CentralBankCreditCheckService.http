@@ -1,1 +1,6 @@
-@CentralBankCreditCheckService_HostAddress = http://localhost:5081
+@CentralBankCreditCheckService_HostAddress = https://localhost:7272
+
+@id=0012345678
+GET {{CentralBankCreditCheckService_HostAddress}}/api/centralbankcreditcheck/{{id}}
+
+###

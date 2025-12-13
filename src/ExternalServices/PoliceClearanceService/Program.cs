@@ -1,12 +1,28 @@
+using Microsoft.EntityFrameworkCore;
+using PoliceClearanceService.Data;
+using PoliceClearanceService.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddDbContext<PoliceClearanceDbContext>(opt =>
+    opt.UseInMemoryDatabase("PoliceClearanceDb"));
+
+builder.Services.AddScoped<MainService>();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PoliceClearanceDbContext>();
+    SeedData.Seed(db);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
