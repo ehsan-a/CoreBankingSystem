@@ -1,10 +1,12 @@
 ﻿using CoreBanking.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace CoreBanking.Infrastructure.Persistence
 {
-    public class CoreBankingContext : DbContext
+    public class CoreBankingContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public CoreBankingContext(DbContextOptions options) : base(options)
         {
@@ -17,6 +19,19 @@ namespace CoreBanking.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasSequence<long>("AccountNumberSequence")
+            .StartsAt(1000000000)
+            .IncrementsBy(1);
+
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity.HasIndex(a => a.AccountNumber)
+                      .IsUnique();
+
+                entity.Property(a => a.AccountNumber)
+                      .HasMaxLength(20);
+            });
 
             modelBuilder.Entity<Transaction>()
                 .HasOne(t => t.DebitAccount)
@@ -43,5 +58,6 @@ namespace CoreBanking.Infrastructure.Persistence
         public DbSet<Account> Accounts { get; set; } = default!;
         public DbSet<Transaction> Transactions { get; set; } = default!;
         public DbSet<Authentication> Authentications { get; set; } = default!;
+        public DbSet<User> User { get; set; } = default!;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Application.Interfaces;
+using CoreBanking.Application.Specifications.Authentications;
 using CoreBanking.Application.Specifications.Customers;
 using CoreBanking.Domain.Entities;
 using System;
@@ -38,6 +39,12 @@ namespace CoreBanking.Application.Services
         {
             var spec = new CustomerGetAllSpec();
             return await _unitOfWork.Customers.GetByIdAsync(id, spec, cancellationToken);
+        }
+
+        public async Task<Customer?> GetByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken)
+        {
+            var spec = new CustomerGetAllSpec();
+            return await _unitOfWork.Customers.GetByNationalCodeAsync(nationalCode, spec, cancellationToken);
         }
 
         public async Task UpdateAsync(Customer customer, CancellationToken cancellationToken)

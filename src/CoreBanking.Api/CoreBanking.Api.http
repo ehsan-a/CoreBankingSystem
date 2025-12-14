@@ -70,3 +70,54 @@ Content-Type: application/json
 }
 
 ###
+
+POST {{CoreBanking.Api_HostAddress}}/api/accounts
+Content-Type: application/json
+
+{
+    "balance": 0,
+  "status": 0,
+  "createdAt": "0001-01-01T00:00:00",
+  "customerId": "706340cf-ac60-42bb-431a-08de3b0c9aad"
+}
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/authentications
+Content-Type: application/json
+
+{
+     "email": "ehsan@gmail.com",
+  "password": "1234",
+  "confirmPassword": "1234"
+}
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/authentications/register
+Content-Type: application/json
+
+{
+  "email": "ali@gmail.com",
+   "customerId": "8829a927-62dd-433f-3036-08de3b5478a9",
+  "password": "Ehsanadsad2412@",
+  "confirmPassword": "Ehsanadsad2412@"
+   
+}
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/authentications/login
+Content-Type: application/json
+
+{
+   "email": "ali@gmail.com",
+  "password": "Ehsanadsad2412@",
+  "rememberMe":false
+}
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/authentications/logout
+
+###

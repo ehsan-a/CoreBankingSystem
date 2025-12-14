@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace CoreBanking.Domain.Entities
 {
@@ -6,7 +7,8 @@ namespace CoreBanking.Domain.Entities
     {
         public Guid Id { get; set; }
 
-        public string AccountNumber { get; set; } = default!;
+        
+        public string? AccountNumber { get; set; } = default!;
 
         public decimal Balance { get; set; }
 
@@ -15,10 +17,10 @@ namespace CoreBanking.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         public Guid CustomerId { get; set; }
-        public Customer Customer { get; set; } = default!;
+        public Customer? Customer { get; set; } = default!;
 
-        public ICollection<Transaction> DebitTransactions { get; set; } = new List<Transaction>();
+        public ICollection<Transaction>? DebitTransactions { get; set; } = new List<Transaction>();
 
-        public ICollection<Transaction> CreditTransactions { get; set; } = new List<Transaction>();
+        public ICollection<Transaction>? CreditTransactions { get; set; } = new List<Transaction>();
     }
 }

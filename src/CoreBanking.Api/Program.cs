@@ -1,11 +1,15 @@
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Services;
+using CoreBanking.Domain.Entities;
 using CoreBanking.Infrastructure.ExternalServices.CentralBankCreditCheck;
 using CoreBanking.Infrastructure.ExternalServices.CivilRegistry;
 using CoreBanking.Infrastructure.ExternalServices.PoliceClearance;
+using CoreBanking.Infrastructure.Generators;
+using CoreBanking.Infrastructure.Identity;
 using CoreBanking.Infrastructure.Persistence;
 using CoreBanking.Infrastructure.Repositories;
 using CoreBanking.Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,11 +19,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CoreBankingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CoreBankingContext") ?? throw new InvalidOperationException("Connection string 'CoreBankingContext' not found.")));
 
+builder.Services.AddIdentity<User, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<CoreBankingContext>()
+    .AddDefaultTokenProviders();
+
+
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddScoped<INumberGenerator, AccountNumberGenerator>();
+
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 
 builder.Services.AddControllers();
@@ -42,8 +55,10 @@ builder.Services.AddHttpClient<IPoliceClearanceService, PoliceClearanceClient>(c
 });
 
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -51,6 +66,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

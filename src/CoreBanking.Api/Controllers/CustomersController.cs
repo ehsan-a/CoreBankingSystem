@@ -42,7 +42,6 @@ namespace CoreBanking.Api.Controllers
         }
 
         // PUT: api/Customers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(Guid id, Customer customer, CancellationToken cancellationToken)
         {
@@ -71,11 +70,14 @@ namespace CoreBanking.Api.Controllers
         }
 
         // POST: api/Customers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer, CancellationToken cancellationToken)
         {
             var authenticationResult = await _authenticationService.GetByNationalCodeAsync(customer.NationalCode, cancellationToken);
+            if (authenticationResult == null)
+                return Unauthorized(new { message = "Customer Authentication failed." });
+            if (await _customerService.GetByNationalCodeAsync(customer.NationalCode, cancellationToken) != null)
+                return Conflict(new { message = "Customer already exists." });
             if (authenticationResult == null)
                 return Unauthorized(new { message = "Customer Authentication failed." });
             if (authenticationResult.CentralBankCreditCheckPassed && authenticationResult.CivilRegistryVerified && authenticationResult.PoliceClearancePassed)

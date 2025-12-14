@@ -8,5 +8,6 @@
         public string LastName { get; set; } = default!;
         public DateTime CreatedAt { get; set; }
         public ICollection<Account>? Accounts { get; set; } = new List<Account>();
+        public User? User { get; set; }
     }
 }

@@ -9,6 +9,8 @@
         void Update(T entity);
         void Delete(T entity);
         Task<bool> ExistsByIdAsync(Guid id, ISpecification<T> spec, CancellationToken cancellationToken);
+        Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<bool> ExistsByNationalCodeAsync(string nationalCode, ISpecification<T> spec, CancellationToken cancellationToken);
+        Task<bool> ExistsByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken);
     }
 }

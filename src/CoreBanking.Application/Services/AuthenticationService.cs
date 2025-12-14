@@ -1,10 +1,12 @@
 ﻿using CoreBanking.Application.DTOs;
+using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Authentications;
 using CoreBanking.Application.Specifications.Customers;
 using CoreBanking.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,6 +36,12 @@ namespace CoreBanking.Application.Services
 
         public async Task<Authentication> CreateAsync(AuthenticationResponseDto authenticationResponse, CancellationToken cancellationToken)
         {
+            var authenticationExists = await _unitOfWork.Authentications.ExistsByNationalCodeAsync(authenticationResponse.civilRegistry.NationalCode, cancellationToken);
+
+            if (authenticationExists)
+            {
+                throw new ConflictException("Authentication already exists.");
+            }
             var authentication = new Authentication
             {
                 NationalCode = authenticationResponse.civilRegistry.NationalCode,

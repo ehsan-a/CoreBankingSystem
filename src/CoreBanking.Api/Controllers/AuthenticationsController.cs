@@ -1,9 +1,7 @@
 ﻿using CoreBanking.Application.DTOs;
 using CoreBanking.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace CoreBanking.Api.Controllers
 {
@@ -12,10 +10,12 @@ namespace CoreBanking.Api.Controllers
     public class AuthenticationsController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly IIdentityService _identityService;
 
-        public AuthenticationsController(IAuthenticationService authenticationService)
+        public AuthenticationsController(IAuthenticationService authenticationService, IIdentityService identityService)
         {
             _authenticationService = authenticationService;
+            _identityService = identityService;
         }
 
         [HttpGet("{id}")]
@@ -36,16 +36,30 @@ namespace CoreBanking.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<AuthenticationResponseDto>> PostAuthentications(AuthenticationResponseDto authenticationResponse, CancellationToken cancellationToken)
         {
-            if (await _authenticationService.ExistsAsync(authenticationResponse.civilRegistry.NationalCode, cancellationToken))
-            {
-                return Conflict(new
-                {
-                    message = "Authentication already exists."
-                });
-            }
             var result = await _authenticationService.CreateAsync(authenticationResponse, cancellationToken);
 
             return CreatedAtAction("GetAuthentications", new { id = authenticationResponse.civilRegistry.NationalCode }, result);
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterRequestDto dto)
+        {
+            await _identityService.RegisterAsync(dto);
+            return StatusCode(StatusCodes.Status201Created);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequestDto dto)
+        {
+            await _identityService.LoginAsync(dto);
+            return Ok();
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _identityService.LogoutAsync();
+            return Ok();
         }
 
     }

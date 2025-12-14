@@ -52,10 +52,23 @@ namespace CoreBanking.Infrastructure.Repositories
             var entity = await GetByIdAsync(id, spec, cancellationToken);
             return entity != null;
         }
+        public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Set<T>()
+                       .AsNoTracking()
+                       .AnyAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
+        }
         public async Task<bool> ExistsByNationalCodeAsync(string nationalCode, ISpecification<T> spec, CancellationToken cancellationToken)
         {
             var entity = await GetByNationalCodeAsync(nationalCode, spec, cancellationToken);
             return entity != null;
+        }
+
+        public async Task<bool> ExistsByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken)
+        {
+            return await _context.Set<T>()
+                       .AsNoTracking()
+                       .AnyAsync(e => EF.Property<string>(e, "NationalCode") == nationalCode, cancellationToken);
         }
     }
 }
