@@ -1,108 +1,14 @@
 @CoreBanking.Api_HostAddress = https://localhost:7065
 
-@nid=0012345678
-GET {{CoreBanking.Api_HostAddress}}/api/authentications/{{nid}}
-
-###
-
-POST {{CoreBanking.Api_HostAddress}}/api/authentications
-Content-Type: application/json
-
-{
-  
-  "civilRegistry": {
-    "nationalCode": "0012345678",
-    "firstName": "Ali",
-    "lastName": "Ahmadi",
-    "birthDate": "1990-01-01T00:00:00",
-    "isAlive": true
-  },
-  "centralBankCreditCheck": {
-    "isValid": true,
-    "reason": "Validation Success",
-    "checkedAt": "2025-12-13T18:06:57.3575445+03:30"
-  },
-  "policeClearance": {
-    "hasCriminalRecord": false,
-    "description": "No Criminal Record",
-    "checkedAt": "2025-12-13T18:06:57.3122191+03:30"
-  },
-  "authentication": null
-
-}
-
-###
 
 POST {{CoreBanking.Api_HostAddress}}/api/customers
 Content-Type: application/json
 
 {
-  "nationalCode": "0012345678",
-  "firstName": "Ali",
-  "lastName": "Ahmadi",
+  "nationalCode": "0098765432",
+  "firstName": "Reza",
+  "lastName": "Mohammadi",
   "createdAt": "0001-01-01T00:00:00"
-}
-
-###
-
-GET {{CoreBanking.Api_HostAddress}}/api/customers
-
-###
-@id=ecc3cdae-c891-4408-44a2-08de3a67f5b2
-DELETE {{CoreBanking.Api_HostAddress}}/api/customers/{{id}}
-
-###
-@id=ecc3cdae-c891-4408-44a2-08de3a67f5b2
-GET {{CoreBanking.Api_HostAddress}}/api/customers/{{id}}
-
-###
-@id=1fd61061-ce4e-4ba1-44a3-08de3a67f5b2
-PUT {{CoreBanking.Api_HostAddress}}/api/customers/{{id}}
-Content-Type: application/json
-
-{
-  "id":"1fd61061-ce4e-4ba1-44a3-08de3a67f5b2",
-  "nationalCode": "0012345678",
-  "firstName": "Ehsan",
-  "lastName": "Ahmadi",
-  "createdAt": "0001-01-01T00:00:00",
-  "accounts": []
-}
-
-###
-
-POST {{CoreBanking.Api_HostAddress}}/api/accounts
-Content-Type: application/json
-
-{
-    "balance": 0,
-  "status": 0,
-  "createdAt": "0001-01-01T00:00:00",
-  "customerId": "706340cf-ac60-42bb-431a-08de3b0c9aad"
-}
-
-###
-
-POST {{CoreBanking.Api_HostAddress}}/api/authentications
-Content-Type: application/json
-
-{
-     "email": "ehsan@gmail.com",
-  "password": "1234",
-  "confirmPassword": "1234"
-}
-
-###
-
-POST {{CoreBanking.Api_HostAddress}}/api/authentications/register
-Content-Type: application/json
-
-{
-  "email": "ali@gmail.com",
-   "customerId": "8829a927-62dd-433f-3036-08de3b5478a9",
-  "password": "Ehsanadsad2412@",
-  "confirmPassword": "Ehsanadsad2412@"
-   
 }
 
 ###
@@ -111,9 +17,70 @@ POST {{CoreBanking.Api_HostAddress}}/api/authentications/login
 Content-Type: application/json
 
 {
-   "email": "ali@gmail.com",
+ 
+  "email": "ali@gmail.com",
   "password": "Ehsanadsad2412@",
   "rememberMe":false
+}
+
+###
+
+
+@id=0098765432
+GET {{CoreBanking.Api_HostAddress}}/api/authentications/{{id}}
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/authentications
+Content-Type: application/json
+
+{
+  "civilRegistry": {
+    "nationalCode": "0098765432",
+    "firstName": "Reza",
+    "lastName": "Mohammadi",
+    "birthDate": "1985-06-15T00:00:00",
+    "isAlive": true
+  },
+  "centralBankCreditCheck": {
+    "isValid": true,
+    "reason": "Validation Success",
+    "checkedAt": "2025-12-15T16:41:12.0058635+03:30"
+  },
+  "policeClearance": {
+    "hasCriminalRecord": false,
+    "description": "No Criminal Record",
+    "checkedAt": "2025-12-15T16:41:11.9914978+03:30"
+  },
+  "registeredAuthentication": null
+  }
+
+###
+
+GET {{CoreBanking.Api_HostAddress}}/api/customers
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/accounts
+Content-Type: application/json
+
+{
+   "balance": 0,
+  "status": 0,
+  "createdAt": "0001-01-01T00:00:00",
+  "customerId": "706340cf-ac60-42bb-431a-08de3b0c9aad"
+}
+
+###
+
+POST {{CoreBanking.Api_HostAddress}}/api/authentications/register
+Content-Type: application/json
+
+{
+  "email": "reza@gmail.com",
+  "customerId": "b9a86905-188f-4e5f-dd7d-08de3bdab975",
+  "password": "Ehsanadsad2412@",
+  "confirmPassword": "Ehsanadsad2412@"
 }
 
 ###

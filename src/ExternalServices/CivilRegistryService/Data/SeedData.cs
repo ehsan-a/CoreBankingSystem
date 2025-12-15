@@ -24,7 +24,7 @@ namespace CivilRegistryService.Data
                     FirstName = "Reza",
                     LastName = "Mohammadi",
                     BirthDate = new DateTime(1985, 6, 15),
-                    IsAlive = false
+                    IsAlive = true
                 }
             );
 

@@ -1,10 +1,8 @@
-﻿using CoreBanking.Application.Interfaces;
+﻿using CoreBanking.Application.Exceptions;
+using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Authentications;
 using CoreBanking.Application.Specifications.Customers;
 using CoreBanking.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CoreBanking.Application.Services
 {
@@ -17,6 +15,14 @@ namespace CoreBanking.Application.Services
         }
         public async Task CreateAsync(Customer customer, CancellationToken cancellationToken)
         {
+            var spec = new AuthenticationGetAllSpec();
+            var authenticationResult = await _unitOfWork.Authentications.GetByNationalCodeAsync(customer.NationalCode, spec, cancellationToken);
+            if (await _unitOfWork.Customers.ExistsByNationalCodeAsync(customer.NationalCode, cancellationToken))
+                throw new ConflictException("Customer already exists.");
+            if (authenticationResult == null)
+                throw new UnauthorizedAccessException("Customer Authentication Not Found.");
+            if (!authenticationResult.CentralBankCreditCheckPassed || !authenticationResult.CivilRegistryVerified || !authenticationResult.PoliceClearancePassed)
+                throw new UnauthorizedAccessException("Customer authentication result rejected.");
             await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }

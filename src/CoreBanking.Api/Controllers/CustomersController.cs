@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CoreBanking.Api.Controllers
 {
@@ -18,9 +19,8 @@ namespace CoreBanking.Api.Controllers
             _authenticationService = authenticationService;
         }
 
-
-
         // GET: api/Customers
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers(CancellationToken cancellationToken)
         {
@@ -71,21 +71,11 @@ namespace CoreBanking.Api.Controllers
 
         // POST: api/Customers
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer, CancellationToken cancellationToken)
         {
-            var authenticationResult = await _authenticationService.GetByNationalCodeAsync(customer.NationalCode, cancellationToken);
-            if (authenticationResult == null)
-                return Unauthorized(new { message = "Customer Authentication failed." });
-            if (await _customerService.GetByNationalCodeAsync(customer.NationalCode, cancellationToken) != null)
-                return Conflict(new { message = "Customer already exists." });
-            if (authenticationResult == null)
-                return Unauthorized(new { message = "Customer Authentication failed." });
-            if (authenticationResult.CentralBankCreditCheckPassed && authenticationResult.CivilRegistryVerified && authenticationResult.PoliceClearancePassed)
-            {
-                await _customerService.CreateAsync(customer, cancellationToken);
-                return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
-            }
-            else return BadRequest();
+            await _customerService.CreateAsync(customer, cancellationToken);
+            return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
 
         // DELETE: api/Customers/5
