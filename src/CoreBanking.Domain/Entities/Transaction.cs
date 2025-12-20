@@ -8,11 +8,11 @@ namespace CoreBanking.Domain.Entities
 
     
         public Guid DebitAccountId { get; set; }
-        public Account DebitAccount { get; set; } = default!;
+        public Account? DebitAccount { get; set; } = default!;
 
  
         public Guid CreditAccountId { get; set; }
-        public Account CreditAccount { get; set; } = default!;
+        public Account? CreditAccount { get; set; } = default!;
 
         public decimal Amount { get; set; }
 

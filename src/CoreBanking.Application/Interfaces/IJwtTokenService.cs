@@ -5,7 +5,9 @@ using System.Text;
 
 namespace CoreBanking.Application.Interfaces
 {
-    public interface ITransactionService : IService<Transaction>
+    public interface IJwtTokenService
     {
+        string GenerateToken(User user);
     }
+
 }

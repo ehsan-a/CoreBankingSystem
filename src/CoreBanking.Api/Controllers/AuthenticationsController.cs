@@ -11,11 +11,13 @@ namespace CoreBanking.Api.Controllers
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IIdentityService _identityService;
+        private readonly IJwtTokenService _tokenService;
 
-        public AuthenticationsController(IAuthenticationService authenticationService, IIdentityService identityService)
+        public AuthenticationsController(IAuthenticationService authenticationService, IIdentityService identityService, IJwtTokenService tokenService)
         {
             _authenticationService = authenticationService;
             _identityService = identityService;
+            _tokenService = tokenService;
         }
 
         [HttpGet("{id}")]
@@ -52,7 +54,8 @@ namespace CoreBanking.Api.Controllers
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {
             await _identityService.LoginAsync(dto);
-            return Ok();
+            var token = _tokenService.GenerateToken(await _identityService.GetUserAsync(User));
+            return Ok(new { token });
         }
 
         [HttpPost("logout")]
