@@ -6,6 +6,7 @@ using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Authentications;
 using CoreBanking.Domain.Entities;
+using FluentValidation;
 
 namespace CoreBanking.Application.Services
 {
@@ -16,14 +17,16 @@ namespace CoreBanking.Application.Services
         private readonly ICentralBankCreditCheckService _centralBankCreditCheckService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IValidator<CreateAuthenticationRequestDto> _validator;
 
-        public AuthenticationService(ICivilRegistryService civilRegistryService, IPoliceClearanceService policeClearanceService, ICentralBankCreditCheckService centralBankCreditCheckService, IUnitOfWork unitOfWork, IMapper mapper)
+        public AuthenticationService(ICivilRegistryService civilRegistryService, IPoliceClearanceService policeClearanceService, ICentralBankCreditCheckService centralBankCreditCheckService, IUnitOfWork unitOfWork, IMapper mapper, IValidator<CreateAuthenticationRequestDto> validator)
         {
             _civilRegistryService = civilRegistryService;
             _policeClearanceService = policeClearanceService;
             _centralBankCreditCheckService = centralBankCreditCheckService;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _validator = validator;
         }
 
         public async Task<CivilRegistryResponseDto?> GetCivilRegistryAsync(string nationalCode)
@@ -35,6 +38,7 @@ namespace CoreBanking.Application.Services
 
         public async Task<Authentication> CreateAsync(CreateAuthenticationRequestDto createAuthenticationRequestDto, CancellationToken cancellationToken)
         {
+            await _validator.ValidateAndThrowAsync(createAuthenticationRequestDto);
             var authenticationExists = await _unitOfWork.Authentications.ExistsByNationalCodeAsync(createAuthenticationRequestDto.NationalCode, cancellationToken);
 
             if (authenticationExists)

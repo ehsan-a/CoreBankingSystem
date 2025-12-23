@@ -1,4 +1,5 @@
 using CoreBanking.Api.Middlewares;
+using CoreBanking.Application.DTOs.Requests.Authentication;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Mappings;
 using CoreBanking.Application.Services;
@@ -11,6 +12,7 @@ using CoreBanking.Infrastructure.Identity;
 using CoreBanking.Infrastructure.Persistence;
 using CoreBanking.Infrastructure.Repositories;
 using CoreBanking.Infrastructure.UnitOfWork;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,12 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddValidatorsFromAssembly(typeof(LoginRequestDtoValidator).Assembly);
+
+builder.Services.AddValidatorsFromAssembly(typeof(RegisterRequestDtoValidator).Assembly);
+
+builder.Services.AddValidatorsFromAssembly(typeof(CreateAuthenticationRequestDtoValidator).Assembly);
 
 builder.Host.UseSerilog();
 

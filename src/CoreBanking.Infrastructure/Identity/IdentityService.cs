@@ -2,6 +2,7 @@
 using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,18 +17,22 @@ namespace CoreBanking.Infrastructure.Identity
         private readonly ILogger<IdentityService> _logger;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IRefreshTokenService _refreshTokenService;
+        private readonly IValidator<LoginRequestDto> _validator;
+        private readonly IValidator<RegisterRequestDto> _registerValidator;
 
-        public IdentityService(UserManager<User> userManager, ILogger<IdentityService> logger, IJwtTokenService jwtTokenService, IRefreshTokenService refreshTokenService)
+        public IdentityService(UserManager<User> userManager, ILogger<IdentityService> logger, IJwtTokenService jwtTokenService, IRefreshTokenService refreshTokenService, IValidator<LoginRequestDto> validator, IValidator<RegisterRequestDto> registerValidator)
         {
             _userManager = userManager;
             _logger = logger;
             _jwtTokenService = jwtTokenService;
             _refreshTokenService = refreshTokenService;
+            _validator = validator;
+            _registerValidator = registerValidator;
         }
 
         public async Task<(string AccessToken, string RefreshToken)> LoginAsync(LoginRequestDto input)
         {
-
+            await _validator.ValidateAndThrowAsync(input);
             var user = await _userManager.FindByEmailAsync(input.Email);
             if (user == null)
                 throw new UnauthorizedAccessException("Invalid email or password");
@@ -45,6 +50,7 @@ namespace CoreBanking.Infrastructure.Identity
 
         public async Task RegisterAsync(RegisterRequestDto input)
         {
+            await _registerValidator.ValidateAndThrowAsync(input);
             var user = new User
             {
                 UserName = input.Email,
