@@ -65,10 +65,7 @@ POST {{CoreBanking.Api_HostAddress}}/api/accounts
 Content-Type: application/json
 
 {
-   "balance": 0,
-  "status": 0,
-  "createdAt": "0001-01-01T00:00:00",
-  "customerId": "e695ae2b-0768-44b0-ca69-08de3be63c0e"
+  "customerId": "b9a86905-188f-4e5f-dd7d-08de3bdab975"
 }
 
 ###

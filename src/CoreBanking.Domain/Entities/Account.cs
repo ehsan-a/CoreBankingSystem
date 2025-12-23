@@ -6,15 +6,13 @@ namespace CoreBanking.Domain.Entities
     public class Account
     {
         public Guid Id { get; set; }
-
-        
         public string? AccountNumber { get; set; } = default!;
 
-        public decimal Balance { get; set; }
+        public decimal Balance { get; set; } = default!;
 
-        public AccountStatus Status { get; set; }
+        public AccountStatus Status { get; set; } = AccountStatus.Active;
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Guid CustomerId { get; set; }
         public Customer? Customer { get; set; } = default!;

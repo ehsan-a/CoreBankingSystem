@@ -1,10 +1,9 @@
-﻿using CoreBanking.Application.DTOs;
+﻿using CoreBanking.Application.DTOs.Requests.Authentication;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace CoreBanking.Infrastructure.Identity
 {

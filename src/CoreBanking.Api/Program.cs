@@ -1,5 +1,6 @@
 using CoreBanking.Api.Middlewares;
 using CoreBanking.Application.Interfaces;
+using CoreBanking.Application.Mappings;
 using CoreBanking.Application.Services;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Infrastructure.ExternalServices.CentralBankCreditCheck;
@@ -28,6 +29,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Host.UseSerilog();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<CoreBankingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CoreBankingContext") ?? throw new InvalidOperationException("Connection string 'CoreBankingContext' not found.")));

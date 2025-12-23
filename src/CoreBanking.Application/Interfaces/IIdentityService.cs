@@ -1,4 +1,4 @@
-﻿using CoreBanking.Application.DTOs;
+﻿using CoreBanking.Application.DTOs.Requests.Authentication;
 using CoreBanking.Domain.Entities;
 using System;
 using System.Collections.Generic;

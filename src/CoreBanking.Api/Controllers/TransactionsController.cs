@@ -1,7 +1,9 @@
-﻿using CoreBanking.Application.Interfaces;
+﻿using AutoMapper;
+using CoreBanking.Application.DTOs.Requests.Transaction;
+using CoreBanking.Application.DTOs.Responses.Transaction;
+using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CoreBanking.Api.Controllers
 {
@@ -10,22 +12,25 @@ namespace CoreBanking.Api.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly IMapper _mapper;
 
-        public TransactionsController(ITransactionService transactionService)
+        public TransactionsController(ITransactionService transactionService, IMapper mapper)
         {
             _transactionService = transactionService;
+            _mapper = mapper;
         }
 
         // GET: api/Transactions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<TransactionResponseDto>>> GetTransactions(CancellationToken cancellationToken)
         {
-            return (await _transactionService.GetAllAsync(cancellationToken)).ToList();
+            var transaction = await _transactionService.GetAllAsync(cancellationToken);
+            return Ok(_mapper.Map<IEnumerable<TransactionResponseDto>>(transaction));
         }
 
         // GET: api/Transactions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Transaction>> GetTransaction(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<TransactionResponseDto>> GetTransaction(Guid id, CancellationToken cancellationToken)
         {
             var transaction = await _transactionService.GetByIdAsync(id, cancellationToken);
 
@@ -34,60 +39,18 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            return transaction;
-        }
-
-        // PUT: api/Transactions/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTransaction(Guid id, Transaction transaction, CancellationToken cancellationToken)
-        {
-            if (id != transaction.Id)
-            {
-                return BadRequest();
-            }
-            try
-            {
-                await _transactionService.UpdateAsync(transaction, cancellationToken);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await TransactionExists(id, cancellationToken))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(_mapper.Map<TransactionResponseDto>(transaction));
         }
 
         // POST: api/Transactions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction, CancellationToken cancellationToken)
+        public async Task<ActionResult<TransactionResponseDto>> PostTransaction(CreateTransactionRequestDto createTransactionRequestDto, CancellationToken cancellationToken)
         {
+            var transaction = _mapper.Map<Transaction>(createTransactionRequestDto);
             await _transactionService.CreateAsync(transaction, cancellationToken);
 
-            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, transaction);
-        }
-
-        // DELETE: api/Transactions/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTransaction(Guid id, CancellationToken cancellationToken)
-        {
-            var transaction = await _transactionService.GetByIdAsync(id, cancellationToken);
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-
-            await _transactionService.DeleteAsync(transaction.Id, cancellationToken);
-
-            return NoContent();
+            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, _mapper.Map<TransactionResponseDto>(transaction));
         }
 
         private async Task<bool> TransactionExists(Guid id, CancellationToken cancellationToken)

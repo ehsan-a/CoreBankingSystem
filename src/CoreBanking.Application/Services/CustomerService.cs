@@ -63,6 +63,5 @@ namespace CoreBanking.Application.Services
             var spec = new CustomerGetAllSpec();
             return await _unitOfWork.Customers.ExistsByIdAsync(id, spec, cancellationToken);
         }
-
     }
 }

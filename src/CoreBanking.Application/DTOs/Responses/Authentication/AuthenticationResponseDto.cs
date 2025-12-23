@@ -1,15 +1,12 @@
-﻿using CoreBanking.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CoreBanking.Application.DTOs.Responses.ExternalServices;
 
-namespace CoreBanking.Application.DTOs
+namespace CoreBanking.Application.DTOs.Responses.Authentication
 {
     public class AuthenticationResponseDto
     {
         public CivilRegistryResponseDto? civilRegistry { get; set; }
         public CentralBankCreditCheckResponseDto? centralBankCreditCheck { get; set; }
         public PoliceClearanceResponseDto? policeClearance { get; set; }
-        public Authentication? RegisteredAuthentication { get; set; }
+        public RegisteredAuthResponseDto? RegisteredAuthentication { get; set; }
     }
 }

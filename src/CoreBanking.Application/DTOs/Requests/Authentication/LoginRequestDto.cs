@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace CoreBanking.Application.DTOs
+namespace CoreBanking.Application.DTOs.Requests.Authentication
 {
     public class LoginRequestDto
     {

@@ -1,12 +1,7 @@
-﻿using Azure;
-using CoreBanking.Application.DTOs;
+﻿using CoreBanking.Application.DTOs.Responses.ExternalServices;
 using CoreBanking.Application.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CoreBanking.Infrastructure.ExternalServices.CivilRegistry
 {

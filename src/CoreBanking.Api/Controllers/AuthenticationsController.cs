@@ -1,6 +1,7 @@
-﻿using CoreBanking.Application.DTOs;
+﻿using AutoMapper;
+using CoreBanking.Application.DTOs.Requests.Authentication;
+using CoreBanking.Application.DTOs.Responses.Authentication;
 using CoreBanking.Application.Interfaces;
-using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoreBanking.Api.Controllers
@@ -23,24 +24,15 @@ namespace CoreBanking.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AuthenticationResponseDto>> GetAuthentications(string id, CancellationToken cancellationToken)
         {
-            var person = await _authenticationService.GetCivilRegistryAsync(id);
-            if (person == null) return NotFound();
-            var result = new AuthenticationResponseDto
-            {
-                civilRegistry = await _authenticationService.GetCivilRegistryAsync(id),
-                centralBankCreditCheck = await _authenticationService.GetCentralBankCreditCheckAsync(id),
-                policeClearance = await _authenticationService.GetPoliceClearanceAsync(id),
-                RegisteredAuthentication = await _authenticationService.GetByNationalCodeAsync(id, cancellationToken)
-            };
-            return result;
+            return Ok(await _authenticationService.GetInquiryAsync(id, cancellationToken));
         }
 
         [HttpPost]
-        public async Task<ActionResult<AuthenticationResponseDto>> PostAuthentications(AuthenticationResponseDto authenticationResponse, CancellationToken cancellationToken)
+        public async Task<ActionResult<AuthenticationResponseDto>> PostAuthentications(CreateAuthenticationRequestDto createAuthenticationRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _authenticationService.CreateAsync(authenticationResponse, cancellationToken);
+            var result = await _authenticationService.CreateAsync(createAuthenticationRequestDto, cancellationToken);
 
-            return CreatedAtAction("GetAuthentications", new { id = authenticationResponse.civilRegistry.NationalCode }, result);
+            return CreatedAtAction("GetAuthentications", new { id = createAuthenticationRequestDto.NationalCode }, result);
         }
 
         [HttpPost("register")]

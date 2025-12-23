@@ -1,6 +1,5 @@
 ﻿using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Accounts;
-using CoreBanking.Application.Specifications.Customers;
 using CoreBanking.Application.Exceptions;
 using CoreBanking.Domain.Entities;
 

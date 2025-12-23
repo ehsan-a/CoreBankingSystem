@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CoreBanking.Domain.Entities
+namespace CoreBanking.Application.DTOs.Responses.Authentication
 {
-    public class Authentication
+    public class RegisteredAuthResponseDto
     {
-        public Guid Id { get; set; }
-        public string NationalCode { get; set; }
         public bool CentralBankCreditCheckPassed { get; set; }
         public bool CivilRegistryVerified { get; set; }
         public bool PoliceClearancePassed { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; }
     }
 }

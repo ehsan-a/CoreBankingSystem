@@ -1,4 +1,7 @@
-﻿using CoreBanking.Application.Interfaces;
+﻿using AutoMapper;
+using CoreBanking.Application.DTOs.Requests.Account;
+using CoreBanking.Application.DTOs.Responses.Account;
+using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,22 +13,25 @@ namespace CoreBanking.Api.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IMapper _mapper;
 
-        public AccountsController(IAccountService accountService)
+        public AccountsController(IAccountService accountService, IMapper mapper)
         {
             _accountService = accountService;
+            _mapper = mapper;
         }
 
         // GET: api/Accounts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetAccounts(CancellationToken cancellationToken)
         {
-            return (await _accountService.GetAllAsync(cancellationToken)).ToList();
+            var accounts = await _accountService.GetAllAsync(cancellationToken);
+            return Ok(_mapper.Map<IEnumerable<AccountResponseDto>>(accounts));
         }
 
         // GET: api/Accounts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Account>> GetAccount(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<AccountResponseDto>> GetAccount(Guid id, CancellationToken cancellationToken)
         {
             var account = await _accountService.GetByIdAsync(id, cancellationToken);
 
@@ -35,20 +41,21 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            return account;
+            return Ok(_mapper.Map<AccountResponseDto>(account));
         }
 
         // PUT: api/Accounts/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccount(Guid id, Account account, CancellationToken cancellationToken)
+        public async Task<IActionResult> PutAccount(Guid id, UpdateAccountRequestDto updateAccountRequestDto, CancellationToken cancellationToken)
         {
-            if (id != account.Id)
+            if (id != updateAccountRequestDto.Id)
             {
                 return BadRequest();
             }
             try
             {
-                await _accountService.UpdateAsync(account, cancellationToken);
+                var account = await _accountService.GetByIdAsync(id, cancellationToken);
+                await _accountService.UpdateAsync(_mapper.Map(updateAccountRequestDto, account), cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -67,11 +74,12 @@ namespace CoreBanking.Api.Controllers
 
         // POST: api/Accounts
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(Account account, CancellationToken cancellationToken)
+        public async Task<ActionResult<AccountResponseDto>> PostAccount(CreateAccountRequestDto createAccountRequestDto, CancellationToken cancellationToken)
         {
+            var account = _mapper.Map<Account>(createAccountRequestDto);
             await _accountService.CreateAsync(account, cancellationToken);
 
-            return CreatedAtAction("GetAccount", new { id = account.Id }, account);
+            return CreatedAtAction("GetAccount", new { id = account.Id }, _mapper.Map<AccountResponseDto>(account));
         }
 
         // DELETE: api/Accounts/5

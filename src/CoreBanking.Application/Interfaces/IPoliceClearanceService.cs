@@ -1,4 +1,4 @@
-﻿using CoreBanking.Application.DTOs;
+﻿using CoreBanking.Application.DTOs.Responses.ExternalServices;
 
 namespace CoreBanking.Application.Interfaces
 {

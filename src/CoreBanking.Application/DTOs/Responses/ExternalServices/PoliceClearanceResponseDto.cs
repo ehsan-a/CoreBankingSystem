@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CoreBanking.Application.DTOs
+namespace CoreBanking.Application.DTOs.Responses.ExternalServices
 {
     public class PoliceClearanceResponseDto
     {

@@ -1,14 +1,11 @@
-﻿using CoreBanking.Application.DTOs;
+﻿using AutoMapper;
+using CoreBanking.Application.DTOs.Requests.Authentication;
+using CoreBanking.Application.DTOs.Responses.Authentication;
+using CoreBanking.Application.DTOs.Responses.ExternalServices;
 using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Authentications;
-using CoreBanking.Application.Specifications.Customers;
 using CoreBanking.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CoreBanking.Application.Services
 {
@@ -18,13 +15,15 @@ namespace CoreBanking.Application.Services
         private readonly IPoliceClearanceService _policeClearanceService;
         private readonly ICentralBankCreditCheckService _centralBankCreditCheckService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public AuthenticationService(ICivilRegistryService civilRegistryService, IPoliceClearanceService policeClearanceService, ICentralBankCreditCheckService centralBankCreditCheckService, IUnitOfWork unitOfWork)
+        public AuthenticationService(ICivilRegistryService civilRegistryService, IPoliceClearanceService policeClearanceService, ICentralBankCreditCheckService centralBankCreditCheckService, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _civilRegistryService = civilRegistryService;
             _policeClearanceService = policeClearanceService;
             _centralBankCreditCheckService = centralBankCreditCheckService;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<CivilRegistryResponseDto?> GetCivilRegistryAsync(string nationalCode)
@@ -34,22 +33,15 @@ namespace CoreBanking.Application.Services
         public async Task<CentralBankCreditCheckResponseDto?> GetCentralBankCreditCheckAsync(string nationalCode)
         => await _centralBankCreditCheckService.GetResultInfoAsync(nationalCode);
 
-        public async Task<Authentication> CreateAsync(AuthenticationResponseDto authenticationResponse, CancellationToken cancellationToken)
+        public async Task<Authentication> CreateAsync(CreateAuthenticationRequestDto createAuthenticationRequestDto, CancellationToken cancellationToken)
         {
-            var authenticationExists = await _unitOfWork.Authentications.ExistsByNationalCodeAsync(authenticationResponse.civilRegistry.NationalCode, cancellationToken);
+            var authenticationExists = await _unitOfWork.Authentications.ExistsByNationalCodeAsync(createAuthenticationRequestDto.NationalCode, cancellationToken);
 
             if (authenticationExists)
             {
                 throw new ConflictException("Authentication already exists.");
             }
-            var authentication = new Authentication
-            {
-                NationalCode = authenticationResponse.civilRegistry.NationalCode,
-                CreatedAt = DateTime.Now,
-                CivilRegistryVerified = authenticationResponse.civilRegistry.IsAlive,
-                CentralBankCreditCheckPassed = authenticationResponse.centralBankCreditCheck.IsValid,
-                PoliceClearancePassed = authenticationResponse.policeClearance.HasCriminalRecord ? false : true,
-            };
+            var authentication = _mapper.Map<Authentication>(createAuthenticationRequestDto);
             await _unitOfWork.Authentications.AddAsync(authentication, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return authentication;
@@ -65,7 +57,17 @@ namespace CoreBanking.Application.Services
             var spec = new AuthenticationGetAllSpec();
             return await _unitOfWork.Authentications.ExistsByNationalCodeAsync(nationalCode, spec, cancellationToken);
         }
-
-
+        public async Task<AuthenticationResponseDto> GetInquiryAsync(string nationalCode, CancellationToken cancellationToken)
+        {
+            var person = await GetCivilRegistryAsync(nationalCode);
+            if (person == null) throw new NotFoundException("Person", nationalCode);
+            return new AuthenticationResponseDto
+            {
+                civilRegistry = await GetCivilRegistryAsync(nationalCode),
+                centralBankCreditCheck = await GetCentralBankCreditCheckAsync(nationalCode),
+                policeClearance = await GetPoliceClearanceAsync(nationalCode),
+                RegisteredAuthentication = _mapper.Map<RegisteredAuthResponseDto>(await GetByNationalCodeAsync(nationalCode, cancellationToken))
+            };
+        }
     }
 }
