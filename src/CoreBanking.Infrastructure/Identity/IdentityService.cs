@@ -1,7 +1,10 @@
 ﻿using CoreBanking.Application.DTOs.Requests.Authentication;
+using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
@@ -10,21 +13,21 @@ namespace CoreBanking.Infrastructure.Identity
     public class IdentityService : IIdentityService
     {
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
         private readonly ILogger<IdentityService> _logger;
+        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public IdentityService(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            ILogger<IdentityService> logger)
+        public IdentityService(UserManager<User> userManager, ILogger<IdentityService> logger, IJwtTokenService jwtTokenService, IRefreshTokenService refreshTokenService)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _logger = logger;
+            _jwtTokenService = jwtTokenService;
+            _refreshTokenService = refreshTokenService;
         }
 
-        public async Task LoginAsync(LoginRequestDto input)
+        public async Task<(string AccessToken, string RefreshToken)> LoginAsync(LoginRequestDto input)
         {
+
             var user = await _userManager.FindByEmailAsync(input.Email);
             if (user == null)
                 throw new UnauthorizedAccessException("Invalid email or password");
@@ -33,8 +36,11 @@ namespace CoreBanking.Infrastructure.Identity
             if (!validPassword)
                 throw new UnauthorizedAccessException("Invalid email or password");
 
-            await _signInManager.SignInAsync(user, isPersistent: input.RememberMe);
             _logger.LogInformation("User logged in successfully.");
+
+            var accessToken = await _jwtTokenService.GenerateTokenAsync(user);
+            var refreshToken = await _refreshTokenService.GenerateTokenAsync(user.Id);
+            return (accessToken, refreshToken);
         }
 
         public async Task RegisterAsync(RegisterRequestDto input)
@@ -57,9 +63,10 @@ namespace CoreBanking.Infrastructure.Identity
             _logger.LogInformation("User registered successfully.");
         }
 
-        public async Task LogoutAsync()
+        public async Task LogoutAsync(Guid userId)
         {
-            await _signInManager.SignOutAsync();
+            await _refreshTokenService.RevokeTokenAsync(userId, "Logout");
+            await _refreshTokenService.SaveChangesAsync();
             _logger.LogInformation("User logged out successfully.");
         }
 
@@ -70,9 +77,26 @@ namespace CoreBanking.Infrastructure.Identity
 
             var user = await _userManager.GetUserAsync(userPrincipal);
             if (user == null)
-                throw new UnauthorizedAccessException("User not found.");
+                throw new BadHttpRequestException("Invalid Request");
 
             return user;
+        }
+
+        public async Task<(string AccessToken, string RefreshToken)> RefreshTokenAsync(string refreshToken)
+        {
+            var token = await _refreshTokenService.GetTokenAsync(refreshToken);
+
+            if (token == null || token.IsExpired || token.IsRevoked)
+                throw new UnauthorizedAccessException("Invalid refresh token");
+
+            token.RevokedAt = DateTime.Now;
+            token.RevokedReason = "Rotated";
+            await _refreshTokenService.SaveChangesAsync();
+
+            var newRefreshToken = await _refreshTokenService.GenerateTokenAsync(token.UserId);
+            var newAccessToken = await _jwtTokenService.GenerateTokenAsync(token.User);
+
+            return (newAccessToken, newRefreshToken);
         }
     }
 }

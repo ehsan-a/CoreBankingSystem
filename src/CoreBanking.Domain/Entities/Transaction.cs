@@ -10,7 +10,7 @@ namespace CoreBanking.Domain.Entities
         public Guid CreditAccountId { get; set; }
         public Account? CreditAccount { get; set; } = default!;
         public decimal Amount { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string? Description { get; set; }
         public TransactionType Type { get; set; }
     }

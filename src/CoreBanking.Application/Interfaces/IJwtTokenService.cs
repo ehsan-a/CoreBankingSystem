@@ -7,7 +7,7 @@ namespace CoreBanking.Application.Interfaces
 {
     public interface IJwtTokenService
     {
-        string GenerateToken(User user);
+        Task<string> GenerateTokenAsync(User user);
     }
 
 }

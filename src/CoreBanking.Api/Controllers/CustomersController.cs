@@ -3,6 +3,7 @@ using CoreBanking.Application.DTOs.Requests.Customer;
 using CoreBanking.Application.DTOs.Responses.Customer;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace CoreBanking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "Accessibility")]
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
@@ -22,7 +24,6 @@ namespace CoreBanking.Api.Controllers
         }
 
         // GET: api/Customers
-        //[Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetCustomers(CancellationToken cancellationToken)
         {

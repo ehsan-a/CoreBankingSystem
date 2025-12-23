@@ -3,6 +3,7 @@ using CoreBanking.Application.DTOs.Requests.Account;
 using CoreBanking.Application.DTOs.Responses.Account;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace CoreBanking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "Accessibility")]
     public class AccountsController : ControllerBase
     {
         private readonly IAccountService _accountService;

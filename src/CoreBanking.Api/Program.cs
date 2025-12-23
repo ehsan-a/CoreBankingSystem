@@ -35,9 +35,16 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<CoreBankingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CoreBankingContext") ?? throw new InvalidOperationException("Connection string 'CoreBankingContext' not found.")));
 
-builder.Services.AddIdentity<User, IdentityRole<Guid>>()
+builder.Services
+    .AddIdentity<User, IdentityRole<Guid>>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+    })
     .AddEntityFrameworkStores<CoreBankingContext>()
+    .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+    .AddSignInManager<SignInManager<User>>()
     .AddDefaultTokenProviders();
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -61,6 +68,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Accessibility", policy =>
+        policy.RequireClaim("Permission", "Full"));
+
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -72,6 +83,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

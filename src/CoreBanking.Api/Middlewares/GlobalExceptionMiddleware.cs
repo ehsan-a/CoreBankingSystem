@@ -58,6 +58,10 @@ public sealed class GlobalExceptionMiddleware
                 statusCode = HttpStatusCode.Unauthorized;
                 message = exception.Message;
                 break;
+            case BadHttpRequestException:
+                statusCode = HttpStatusCode.BadRequest;
+                message = exception.Message;
+                break;
         }
 
         context.Response.ContentType = "application/json";

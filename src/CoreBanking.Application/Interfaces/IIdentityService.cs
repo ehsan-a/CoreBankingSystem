@@ -9,10 +9,11 @@ namespace CoreBanking.Application.Interfaces
 {
     public interface IIdentityService
     {
-        Task LoginAsync(LoginRequestDto input);
+        Task<(string AccessToken, string RefreshToken)> LoginAsync(LoginRequestDto input);
         Task RegisterAsync(RegisterRequestDto input);
-        Task LogoutAsync();
+        Task LogoutAsync(Guid userId);
         Task<User> GetUserAsync(ClaimsPrincipal userPrincipal);
+        Task<(string AccessToken, string RefreshToken)> RefreshTokenAsync(string refreshToken);
 
     }
 }

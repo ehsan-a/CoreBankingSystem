@@ -59,5 +59,6 @@ namespace CoreBanking.Infrastructure.Persistence
         public DbSet<Transaction> Transactions { get; set; } = default!;
         public DbSet<Authentication> Authentications { get; set; } = default!;
         public DbSet<User> User { get; set; } = default!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     }
 }

@@ -3,12 +3,14 @@ using CoreBanking.Application.DTOs.Requests.Transaction;
 using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoreBanking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "Accessibility")]
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;

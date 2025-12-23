@@ -12,7 +12,7 @@ namespace CoreBanking.Domain.Entities
 
         public AccountStatus Status { get; set; } = AccountStatus.Active;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public Guid CustomerId { get; set; }
         public Customer? Customer { get; set; } = default!;
