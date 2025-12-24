@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Application.Interfaces;
+using CoreBanking.Domain.Entities;
 using CoreBanking.Infrastructure.Persistence;
 using CoreBanking.Infrastructure.Specifications;
 using Microsoft.EntityFrameworkCore;
@@ -70,5 +71,13 @@ namespace CoreBanking.Infrastructure.Repositories
                        .AsNoTracking()
                        .AnyAsync(e => EF.Property<string>(e, "NationalCode") == nationalCode, cancellationToken);
         }
+
+        public async Task<T?> GetByIdAsNoTrackingAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Set<T>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
+        }
+
     }
 }

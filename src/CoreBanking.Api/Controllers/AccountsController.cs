@@ -57,7 +57,7 @@ namespace CoreBanking.Api.Controllers
             try
             {
                 var account = await _accountService.GetByIdAsync(id, cancellationToken);
-                await _accountService.UpdateAsync(_mapper.Map(updateAccountRequestDto, account), cancellationToken);
+                await _accountService.UpdateAsync(_mapper.Map(updateAccountRequestDto, account), User, cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -79,7 +79,7 @@ namespace CoreBanking.Api.Controllers
         public async Task<ActionResult<AccountResponseDto>> PostAccount(CreateAccountRequestDto createAccountRequestDto, CancellationToken cancellationToken)
         {
             var account = _mapper.Map<Account>(createAccountRequestDto);
-            await _accountService.CreateAsync(account, cancellationToken);
+            await _accountService.CreateAsync(account, User, cancellationToken);
 
             return CreatedAtAction("GetAccount", new { id = account.Id }, _mapper.Map<AccountResponseDto>(account));
         }
@@ -94,7 +94,7 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            await _accountService.DeleteAsync(id, cancellationToken);
+            await _accountService.DeleteAsync(id, User, cancellationToken);
 
             return NoContent();
         }

@@ -57,7 +57,7 @@ namespace CoreBanking.Api.Controllers
             try
             {
                 var customer = await _customerService.GetByIdAsync(id, cancellationToken);
-                await _customerService.UpdateAsync(_mapper.Map(updateCustomerRequestDto, customer), cancellationToken);
+                await _customerService.UpdateAsync(_mapper.Map(updateCustomerRequestDto, customer), User, cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -80,7 +80,7 @@ namespace CoreBanking.Api.Controllers
         public async Task<ActionResult<CustomerResponseDto>> PostCustomer(CreateCustomerRequestDto createCustomerRequestDto, CancellationToken cancellationToken)
         {
             var customer = _mapper.Map<Customer>(createCustomerRequestDto);
-            await _customerService.CreateAsync(customer, cancellationToken);
+            await _customerService.CreateAsync(customer, User, cancellationToken);
             return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
 
@@ -94,7 +94,7 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            await _customerService.DeleteAsync(customer.Id, cancellationToken);
+            await _customerService.DeleteAsync(customer.Id, User, cancellationToken);
 
             return NoContent();
         }

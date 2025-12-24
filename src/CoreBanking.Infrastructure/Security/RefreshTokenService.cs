@@ -1,18 +1,22 @@
-﻿using CoreBanking.Application.Interfaces;
-using CoreBanking.Domain.Entities;
+﻿using AutoMapper;
+using CoreBanking.Application.DTOs.Internals;
+using CoreBanking.Application.Interfaces;
 using CoreBanking.Infrastructure.Generators;
 using CoreBanking.Infrastructure.Persistence;
+using CoreBanking.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CoreBanking.Infrastructure.Identity
+namespace CoreBanking.Infrastructure.Security
 {
     public class RefreshTokenService : IRefreshTokenService
     {
         private readonly CoreBankingContext _context;
+        private readonly IMapper _mapper;
 
-        public RefreshTokenService(CoreBankingContext context)
+        public RefreshTokenService(CoreBankingContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<string> GenerateTokenAsync(Guid userId)
         {
@@ -31,11 +35,12 @@ namespace CoreBanking.Infrastructure.Identity
             await _context.SaveChangesAsync();
             return refreshToken.Token;
         }
-        public async Task<RefreshToken?> GetTokenAsync(string refreshToken)
+        public async Task<RefreshTokenDto?> GetTokenAsync(string refreshToken)
         {
-            return await _context.RefreshTokens
+            var result = await _context.RefreshTokens
           .Include(x => x.User)
           .FirstOrDefaultAsync(x => x.Token == refreshToken);
+            return _mapper.Map<RefreshTokenDto>(result);
         }
         public async Task<IEnumerable<RefreshToken>> GetActiveTokenAsync(Guid userId)
         {

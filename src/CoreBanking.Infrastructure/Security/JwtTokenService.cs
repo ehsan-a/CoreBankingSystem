@@ -1,17 +1,13 @@
 ﻿using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
-using CoreBanking.Infrastructure.Generators;
-using CoreBanking.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace CoreBanking.Infrastructure.Identity
+namespace CoreBanking.Infrastructure.Security
 {
     public class JwtTokenService : IJwtTokenService
     {

@@ -12,5 +12,6 @@
         Task<bool> ExistsByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<bool> ExistsByNationalCodeAsync(string nationalCode, ISpecification<T> spec, CancellationToken cancellationToken);
         Task<bool> ExistsByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken);
+        Task<T?> GetByIdAsNoTrackingAsync(Guid id, CancellationToken cancellationToken);
     }
 }

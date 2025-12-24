@@ -2,7 +2,6 @@
 using CoreBanking.Application.DTOs.Requests.Transaction;
 using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
-using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,17 +46,11 @@ namespace CoreBanking.Api.Controllers
         // POST: api/Transactions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TransactionResponseDto>> PostTransaction(CreateTransactionRequestDto createTransactionRequestDto, CancellationToken cancellationToken)
+        public async Task<ActionResult<TransactionResponseDto>> PostTransaction(CreateTransactionRequestDto createTransactionRequestDto, [FromHeader(Name = "Idempotency-Key")] string idempotencyKey, CancellationToken cancellationToken)
         {
-            var transaction = _mapper.Map<Transaction>(createTransactionRequestDto);
-            await _transactionService.CreateAsync(transaction, cancellationToken);
+            var transaction = await _transactionService.CreateAsync(createTransactionRequestDto, User, idempotencyKey, cancellationToken);
 
             return CreatedAtAction("GetTransaction", new { id = transaction.Id }, _mapper.Map<TransactionResponseDto>(transaction));
-        }
-
-        private async Task<bool> TransactionExists(Guid id, CancellationToken cancellationToken)
-        {
-            return await _transactionService.ExistsAsync(id, cancellationToken);
         }
     }
 }

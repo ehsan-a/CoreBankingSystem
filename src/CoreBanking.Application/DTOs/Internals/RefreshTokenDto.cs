@@ -1,20 +1,16 @@
-﻿using System;
+﻿using CoreBanking.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CoreBanking.Domain.Entities
+namespace CoreBanking.Application.DTOs.Internals
 {
-    public class RefreshToken
+    public class RefreshTokenDto
     {
-        public Guid Id { get; set; }
-
-        public string Token { get; set; } = null!;
-
         public Guid UserId { get; set; }
         public User User { get; set; } = null!;
 
         public DateTime ExpiresAt { get; set; }
-        public DateTime CreatedAt { get; set; }
 
         public DateTime? RevokedAt { get; set; }
         public string? RevokedReason { get; set; }
@@ -22,5 +18,4 @@ namespace CoreBanking.Domain.Entities
         public bool IsExpired => DateTime.Now >= ExpiresAt;
         public bool IsRevoked => RevokedAt != null;
     }
-
 }

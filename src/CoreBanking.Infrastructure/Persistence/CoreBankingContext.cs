@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Domain.Entities;
+using CoreBanking.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -60,5 +61,7 @@ namespace CoreBanking.Infrastructure.Persistence
         public DbSet<Authentication> Authentications { get; set; } = default!;
         public DbSet<User> User { get; set; } = default!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
+        public DbSet<IdempotencyKey> IdempotencyKeys { get; set; } = default!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = default!;
     }
 }

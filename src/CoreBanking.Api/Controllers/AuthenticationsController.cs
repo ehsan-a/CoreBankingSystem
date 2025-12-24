@@ -30,7 +30,7 @@ namespace CoreBanking.Api.Controllers
         [Authorize(Policy = "Accessibility")]
         public async Task<ActionResult<AuthenticationResponseDto>> PostAuthentications(CreateAuthenticationRequestDto createAuthenticationRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _authenticationService.CreateAsync(createAuthenticationRequestDto, cancellationToken);
+            var result = await _authenticationService.CreateAsync(createAuthenticationRequestDto, User, cancellationToken);
 
             return CreatedAtAction("GetAuthentications", new { id = createAuthenticationRequestDto.NationalCode }, result);
         }
