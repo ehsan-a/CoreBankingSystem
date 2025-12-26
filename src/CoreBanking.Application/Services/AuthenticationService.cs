@@ -78,9 +78,9 @@ namespace CoreBanking.Application.Services
             if (person == null) throw new NotFoundException("Person", nationalCode);
             return new AuthenticationResponseDto
             {
-                civilRegistry = await GetCivilRegistryAsync(nationalCode),
-                centralBankCreditCheck = await GetCentralBankCreditCheckAsync(nationalCode),
-                policeClearance = await GetPoliceClearanceAsync(nationalCode),
+                CivilRegistry = await GetCivilRegistryAsync(nationalCode),
+                CentralBankCreditCheck = await GetCentralBankCreditCheckAsync(nationalCode),
+                PoliceClearance = await GetPoliceClearanceAsync(nationalCode),
                 RegisteredAuthentication = _mapper.Map<RegisteredAuthResponseDto>(await GetByNationalCodeAsync(nationalCode, cancellationToken))
             };
         }

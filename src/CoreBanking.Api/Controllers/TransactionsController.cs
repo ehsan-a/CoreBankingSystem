@@ -48,6 +48,9 @@ namespace CoreBanking.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TransactionResponseDto>> PostTransaction(CreateTransactionRequestDto createTransactionRequestDto, [FromHeader(Name = "Idempotency-Key")] string idempotencyKey, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(idempotencyKey))
+                return BadRequest("Idempotency-Key is required");
+
             var transaction = await _transactionService.CreateAsync(createTransactionRequestDto, User, idempotencyKey, cancellationToken);
 
             return CreatedAtAction("GetTransaction", new { id = transaction.Id }, _mapper.Map<TransactionResponseDto>(transaction));

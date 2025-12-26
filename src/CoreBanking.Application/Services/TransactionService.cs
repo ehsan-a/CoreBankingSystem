@@ -8,6 +8,7 @@ using CoreBanking.Application.Specifications.Transactions;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Domain.Enums;
 using CoreBanking.Domain.Events;
+using CoreBanking.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Text.Json;
@@ -31,6 +32,10 @@ namespace CoreBanking.Application.Services
         }
         public async Task<Transaction> CreateAsync(CreateTransactionRequestDto createTransactionRequestDto, ClaimsPrincipal principal, string idempotencyKey, CancellationToken cancellationToken)
         {
+
+            if (createTransactionRequestDto.DebitAccountId == createTransactionRequestDto.CreditAccountId)
+                throw new ConflictException("The parties to the transaction are the same.");
+
             var user = await _userManager.GetUserAsync(principal);
             var previousResult = await _idempotencyService.GetResultAsync(idempotencyKey, user.Id);
             if (previousResult != null)
