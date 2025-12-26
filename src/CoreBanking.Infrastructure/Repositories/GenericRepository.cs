@@ -1,5 +1,6 @@
 ﻿using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using CoreBanking.Domain.Interfaces;
 using CoreBanking.Infrastructure.Persistence;
 using CoreBanking.Infrastructure.Specifications;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +47,15 @@ namespace CoreBanking.Infrastructure.Repositories
 
         public void Delete(T entity)
         {
-            _context.Set<T>().Remove(entity);
+            if (entity is ISoftDeletable softDeletable)
+            {
+                softDeletable.IsDeleted = true;
+                _context.Set<T>().Update(entity);
+            }
+            else
+            {
+                _context.Set<T>().Remove(entity);
+            }
         }
         public async Task<bool> ExistsByIdAsync(Guid id, ISpecification<T> spec, CancellationToken cancellationToken)
         {

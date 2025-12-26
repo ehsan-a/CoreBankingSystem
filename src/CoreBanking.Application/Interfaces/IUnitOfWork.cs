@@ -9,6 +9,9 @@ namespace CoreBanking.Application.Interfaces
         IGenericRepository<Transaction> Transactions { get; }
         IGenericRepository<Authentication> Authentications { get; }
 
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task BeginTransactionAsync();
+        Task CommitAsync(CancellationToken cancellationToken = default);
+        Task RollbackAsync();
+        Task SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

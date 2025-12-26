@@ -3,9 +3,11 @@ using CoreBanking.Application.DTOs.Requests.Transaction;
 using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
+using CoreBanking.Application.Specifications.Accounts;
 using CoreBanking.Application.Specifications.Transactions;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Domain.Enums;
+using CoreBanking.Domain.Events;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Text.Json;
@@ -36,17 +38,29 @@ namespace CoreBanking.Application.Services
                 throw new ConflictException(previousResult);
             }
 
-            var transaction = _mapper.Map<Transaction>(createTransactionRequestDto);
-            await _unitOfWork.Transactions.AddAsync(transaction, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.BeginTransactionAsync();
 
-            var auditLog = _mapper.Map<AuditLog>(transaction);
-            auditLog.ActionType = AuditActionType.Create;
-            auditLog.PerformedBy = user.Id.ToString();
-            await _auditLogService.LogAsync(auditLog, cancellationToken);
+            try
+            {
+                var spec = new AccountGetAllSpec();
+                var from = await _unitOfWork.Accounts.GetByIdAsync(createTransactionRequestDto.DebitAccountId, spec, cancellationToken);
+                var to = await _unitOfWork.Accounts.GetByIdAsync(createTransactionRequestDto.CreditAccountId, spec, cancellationToken);
 
-            await _idempotencyService.SaveResultAsync(idempotencyKey, _mapper.Map<TransactionResponseDto>(transaction), user.Id);
-            return transaction;
+                from.Debit(createTransactionRequestDto.Amount);
+                to.Credit(createTransactionRequestDto.Amount);
+
+                var transaction = _mapper.Map<Transaction>(createTransactionRequestDto);
+                await _unitOfWork.Transactions.AddAsync(transaction, cancellationToken);
+                Transaction.Create(transaction, idempotencyKey, user.Id);
+
+                await _unitOfWork.CommitAsync();
+                return transaction;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Transaction>> GetAllAsync(CancellationToken cancellationToken)

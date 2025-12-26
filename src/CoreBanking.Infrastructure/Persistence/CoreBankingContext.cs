@@ -21,6 +21,9 @@ namespace CoreBanking.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Customer>().HasQueryFilter(c => !c.IsDeleted);
+            modelBuilder.Entity<Account>().HasQueryFilter(c => !c.IsDeleted);
+
             modelBuilder.HasSequence<long>("AccountNumberSequence")
             .StartsAt(1000000000)
             .IncrementsBy(1);

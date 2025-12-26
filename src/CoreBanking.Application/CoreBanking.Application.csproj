@@ -15,4 +15,8 @@
     <ProjectReference Include="..\CoreBanking.Domain\CoreBanking.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="EventHandlers\Accounts\" />
+  </ItemGroup>
+
 </Project>

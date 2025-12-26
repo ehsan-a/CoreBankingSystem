@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Application.Exceptions;
+using CoreBanking.Domain.Exceptions;
 using FluentValidation;
 using System.Net;
 using System.Text.Json;
@@ -64,6 +65,11 @@ public sealed class GlobalExceptionMiddleware
                 message = exception.Message;
                 break;
             case ValidationException:
+                statusCode = HttpStatusCode.BadRequest;
+                message = exception.Message;
+                break;
+
+            case DomainException:
                 statusCode = HttpStatusCode.BadRequest;
                 message = exception.Message;
                 break;

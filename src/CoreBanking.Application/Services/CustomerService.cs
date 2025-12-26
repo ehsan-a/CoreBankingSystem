@@ -38,20 +38,23 @@ namespace CoreBanking.Application.Services
             if (!authenticationResult.CentralBankCreditCheckPassed || !authenticationResult.CivilRegistryVerified || !authenticationResult.PoliceClearancePassed)
                 throw new UnauthorizedAccessException("Customer authentication result rejected.");
             await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await CreateAuditLogAsync(customer, principal, cancellationToken, AuditActionType.Create);
+            var user = await _userManager.GetUserAsync(principal);
+            Customer.Create(customer, user.Id);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         public async Task DeleteAsync(Guid id, ClaimsPrincipal principal, CancellationToken cancellationToken)
         {
             var spec = new CustomerGetAllSpec();
             var item = await _unitOfWork.Customers.GetByIdAsync(id, spec, cancellationToken);
             if (item == null) return;
+
+            var user = await _userManager.GetUserAsync(principal);
+            Customer.Delete(item, user.Id);
+
             _unitOfWork.Customers.Delete(item);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await CreateAuditLogAsync(item, principal, cancellationToken, AuditActionType.Delete);
-
         }
 
         public async Task<IEnumerable<Customer>> GetAllAsync(CancellationToken cancellationToken)
@@ -81,25 +84,16 @@ namespace CoreBanking.Application.Services
             var oldValue = JsonSerializer.Serialize(oldAccount);
 
             _unitOfWork.Customers.Update(customer);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await CreateAuditLogAsync(customer, principal, cancellationToken, AuditActionType.Update, oldValue);
+            var user = await _userManager.GetUserAsync(principal);
+            Customer.Update(customer, user.Id, oldValue);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
         {
             var spec = new CustomerGetAllSpec();
             return await _unitOfWork.Customers.ExistsByIdAsync(id, spec, cancellationToken);
-        }
-
-        public async Task CreateAuditLogAsync(Customer customer, ClaimsPrincipal principal, CancellationToken cancellationToken, AuditActionType auditActionType, string? oldValue = null)
-        {
-            var user = await _userManager.GetUserAsync(principal);
-
-            var auditLog = _mapper.Map<AuditLog>(customer);
-            auditLog.ActionType = auditActionType;
-            auditLog.PerformedBy = user.Id.ToString();
-            auditLog.OldValue = oldValue;
-            await _auditLogService.LogAsync(auditLog, cancellationToken);
         }
     }
 }

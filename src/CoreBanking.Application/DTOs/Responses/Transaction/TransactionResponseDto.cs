@@ -7,6 +7,7 @@ namespace CoreBanking.Application.DTOs.Responses.Transaction
 {
     public class TransactionResponseDto
     {
+        public Guid Id { get; set; }
         public Guid DebitAccountId { get; set; }
         public Guid CreditAccountId { get; set; }
         public decimal Amount { get; set; }

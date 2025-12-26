@@ -1,6 +1,11 @@
-﻿using CoreBanking.Application.Interfaces;
+﻿using CoreBanking.Application.EventHandlers.Customers;
+using CoreBanking.Application.EventHandlers.Transactions;
+using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
+using CoreBanking.Domain.Events.Customers;
+using CoreBanking.Domain.Events.Transactions;
 using CoreBanking.Infrastructure.Audit;
+using CoreBanking.Infrastructure.Events;
 using CoreBanking.Infrastructure.ExternalServices.CentralBankCreditCheck;
 using CoreBanking.Infrastructure.ExternalServices.CivilRegistry;
 using CoreBanking.Infrastructure.ExternalServices.PoliceClearance;
@@ -42,6 +47,15 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddScoped<IIdempotencyService, IdempotencyService>();
             services.AddScoped<IAuditLogService, AuditLogService>();
+            services.AddScoped<IEventDispatcher, EventDispatcher>();
+
+            services.AddScoped<IDomainEventHandler<TransactionCreatedEvent>, TransactionCreatedAuditHandler>();
+            services.AddScoped<IDomainEventHandler<TransactionCreatedEvent>, TransactionCreatedIdempotencyHandler>();
+
+            services.AddScoped<IDomainEventHandler<CustomerCreatedEvent>, CustomerCreatedAuditHandler>();
+            services.AddScoped<IDomainEventHandler<CustomerDeletedEvent>, CustomerDeletedAuditHandler>();
+            services.AddScoped<IDomainEventHandler<CustomerUpdatedEvent>, CustomerUpdatedAuditHandler>();
+
 
             services.AddHttpClient<ICivilRegistryService, CivilRegistryClient>(c =>
                 c.BaseAddress = new Uri("https://localhost:7293/"));
