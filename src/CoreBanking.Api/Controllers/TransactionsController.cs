@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using CoreBanking.Application.DTOs.Requests.Transaction;
+﻿using CoreBanking.Application.DTOs.Requests.Transaction;
 using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +12,10 @@ namespace CoreBanking.Api.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
-        private readonly IMapper _mapper;
 
-        public TransactionsController(ITransactionService transactionService, IMapper mapper)
+        public TransactionsController(ITransactionService transactionService)
         {
             _transactionService = transactionService;
-            _mapper = mapper;
         }
 
         // GET: api/Transactions
@@ -26,7 +23,7 @@ namespace CoreBanking.Api.Controllers
         public async Task<ActionResult<IEnumerable<TransactionResponseDto>>> GetTransactions(CancellationToken cancellationToken)
         {
             var transaction = await _transactionService.GetAllAsync(cancellationToken);
-            return Ok(_mapper.Map<IEnumerable<TransactionResponseDto>>(transaction));
+            return Ok(transaction);
         }
 
         // GET: api/Transactions/5
@@ -40,7 +37,7 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<TransactionResponseDto>(transaction));
+            return Ok(transaction);
         }
 
         // POST: api/Transactions
@@ -53,7 +50,7 @@ namespace CoreBanking.Api.Controllers
 
             var transaction = await _transactionService.CreateAsync(createTransactionRequestDto, User, idempotencyKey, cancellationToken);
 
-            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, _mapper.Map<TransactionResponseDto>(transaction));
+            return CreatedAtAction("GetTransaction", new { id = transaction.Id }, transaction);
         }
     }
 }

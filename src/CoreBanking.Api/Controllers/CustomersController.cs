@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using CoreBanking.Application.DTOs.Requests.Customer;
+﻿using CoreBanking.Application.DTOs.Requests.Customer;
 using CoreBanking.Application.DTOs.Responses.Customer;
 using CoreBanking.Application.Interfaces;
-using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +13,10 @@ namespace CoreBanking.Api.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
-        private readonly IMapper _mapper;
 
-        public CustomersController(ICustomerService customerService, IMapper mapper)
+        public CustomersController(ICustomerService customerService)
         {
             _customerService = customerService;
-            _mapper = mapper;
         }
 
         // GET: api/Customers
@@ -28,7 +24,7 @@ namespace CoreBanking.Api.Controllers
         public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetCustomers(CancellationToken cancellationToken)
         {
             var customers = await _customerService.GetAllAsync(cancellationToken);
-            return Ok(_mapper.Map<IEnumerable<CustomerResponseDto>>(customers));
+            return Ok(customers);
         }
 
         // GET: api/Customers/5
@@ -42,7 +38,7 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<CustomerResponseDto>(customer));
+            return Ok(customer);
         }
 
         // PUT: api/Customers/5
@@ -56,8 +52,8 @@ namespace CoreBanking.Api.Controllers
 
             try
             {
-                var customer = await _customerService.GetByIdAsync(id, cancellationToken);
-                await _customerService.UpdateAsync(_mapper.Map(updateCustomerRequestDto, customer), User, cancellationToken);
+                //var customer = await _customerService.GetByIdAsync(id, cancellationToken);
+                await _customerService.UpdateAsync(updateCustomerRequestDto, User, cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -79,8 +75,8 @@ namespace CoreBanking.Api.Controllers
         //[Authorize]
         public async Task<ActionResult<CustomerResponseDto>> PostCustomer(CreateCustomerRequestDto createCustomerRequestDto, CancellationToken cancellationToken)
         {
-            var customer = _mapper.Map<Customer>(createCustomerRequestDto);
-            await _customerService.CreateAsync(customer, User, cancellationToken);
+
+            var customer = await _customerService.CreateAsync(createCustomerRequestDto, User, cancellationToken);
             return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
 

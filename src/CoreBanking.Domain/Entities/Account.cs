@@ -1,11 +1,12 @@
-﻿using CoreBanking.Domain.Enums;
+﻿using CoreBanking.Domain.Abstracttion;
+using CoreBanking.Domain.Enums;
+using CoreBanking.Domain.Events.Accounts;
 using CoreBanking.Domain.Exceptions;
 using CoreBanking.Domain.Interfaces;
-using System.ComponentModel.DataAnnotations;
 
 namespace CoreBanking.Domain.Entities
 {
-    public class Account : ISoftDeletable
+    public class Account : BaseEntity, ISoftDeletable
     {
         public Guid Id { get; set; }
         public string? AccountNumber { get; set; } = default!;
@@ -47,6 +48,30 @@ namespace CoreBanking.Domain.Entities
                 throw new DomainException("Invalid amount");
 
             Balance += amount;
+        }
+
+        public static Account Create(Account account, Guid userId)
+        {
+            account.AddDomainEvent(
+                new AccountCreatedEvent(account, userId)
+            );
+            return account;
+        }
+
+        public static Account Delete(Account account, Guid userId)
+        {
+            account.AddDomainEvent(
+                new AccountDeletedEvent(account, userId)
+            );
+            return account;
+        }
+
+        public static Account Update(Account account, Guid userId, string oldValue)
+        {
+            account.AddDomainEvent(
+                new AccountUpdatedEvent(account, userId, oldValue)
+            );
+            return account;
         }
     }
 }

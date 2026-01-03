@@ -17,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services
+    .AddCustomMediatR()
     .AddValidation()
     .AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
     .AddInfrastructure(builder.Configuration)

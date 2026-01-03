@@ -1,20 +1,13 @@
 ﻿using CoreBanking.Application.DTOs.Requests.Authentication;
 using CoreBanking.Application.DTOs.Responses.Authentication;
-using CoreBanking.Application.DTOs.Responses.ExternalServices;
-using CoreBanking.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 
 namespace CoreBanking.Application.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<CivilRegistryResponseDto?> GetCivilRegistryAsync(string nationalCode);
-        Task<PoliceClearanceResponseDto?> GetPoliceClearanceAsync(string nationalCode);
-        Task<CentralBankCreditCheckResponseDto?> GetCentralBankCreditCheckAsync(string nationalCode);
-        Task<Authentication> CreateAsync(CreateAuthenticationRequestDto createAuthenticationRequestDto, ClaimsPrincipal principal, CancellationToken cancellationToken); Task<Authentication?> GetByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken);
+        Task<RegisteredAuthResponseDto> CreateAsync(CreateAuthenticationRequestDto createAuthenticationRequestDto, ClaimsPrincipal principal, CancellationToken cancellationToken);
+        Task<AuthenticationResponseDto?> GetByNationalCodeAsync(string nationalCode, CancellationToken cancellationToken);
         Task<bool> ExistsAsync(string nationalCode, CancellationToken cancellationToken);
         Task<AuthenticationResponseDto> GetInquiryAsync(string nationalCode, CancellationToken cancellationToken);
     }

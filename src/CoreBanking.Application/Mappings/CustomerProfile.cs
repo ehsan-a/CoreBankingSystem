@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CoreBanking.Application.CQRS.Commands.Customers;
 using CoreBanking.Application.DTOs.Requests.Account;
 using CoreBanking.Application.DTOs.Requests.Customer;
 using CoreBanking.Application.DTOs.Responses.Account;
@@ -15,6 +16,12 @@ namespace CoreBanking.Application.Mappings
             CreateMap<CreateCustomerRequestDto, Customer>();
             CreateMap<UpdateCustomerRequestDto, Customer>()
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<CreateCustomerCommand, Customer>();
+            CreateMap<UpdateCustomerCommand, Customer>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<CreateCustomerRequestDto, CreateCustomerCommand>();
+            CreateMap<UpdateCustomerRequestDto, UpdateCustomerCommand>();
         }
     }
 }

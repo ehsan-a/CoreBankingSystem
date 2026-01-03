@@ -1,12 +1,10 @@
 ﻿using CoreBanking.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CoreBanking.Application.DTOs.Responses.Account
 {
     public class AccountResponseDto
     {
+        public Guid Id { get; set; }
         public string AccountNumber { get; set; } = default!;
 
         public decimal Balance { get; set; }

@@ -1,98 +1,65 @@
 ﻿using AutoMapper;
-using CoreBanking.Application.Exceptions;
+using CoreBanking.Application.CQRS.Commands.Accounts;
+using CoreBanking.Application.CQRS.Queries.Accounts;
+using CoreBanking.Application.DTOs.Requests.Account;
+using CoreBanking.Application.DTOs.Responses.Account;
 using CoreBanking.Application.Interfaces;
-using CoreBanking.Application.Specifications.Accounts;
 using CoreBanking.Domain.Entities;
-using CoreBanking.Domain.Enums;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Security.Principal;
-using System.Text.Json;
 
 namespace CoreBanking.Application.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INumberGenerator _numberGenerator;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly IAuditLogService _auditLogService;
+        private readonly IMediator _mediator;
 
-        public AccountService(IUnitOfWork unitOfWork, INumberGenerator numberGenerator, IMapper mapper, UserManager<User> userManager, IAuditLogService auditLogService)
+        public AccountService(IMapper mapper, UserManager<User> userManager, IMediator mediator)
         {
-            _unitOfWork = unitOfWork;
-            _numberGenerator = numberGenerator;
             _mapper = mapper;
             _userManager = userManager;
-            _auditLogService = auditLogService;
+            _mediator = mediator;
         }
 
-        public async Task CreateAsync(Account account, ClaimsPrincipal principal, CancellationToken cancellationToken)
+        public async Task<AccountResponseDto> CreateAsync(CreateAccountRequestDto createAccountRequestDto, ClaimsPrincipal principal, CancellationToken cancellationToken)
         {
-            var customerExists = await _unitOfWork.Customers.ExistsByIdAsync(account.CustomerId, cancellationToken);
-
-            if (!customerExists)
-            {
-                throw new NotFoundException("Customer", account.CustomerId);
-            }
-            account.AccountNumber = await _numberGenerator.GenerateAccountNumberAsync();
-            await _unitOfWork.Accounts.AddAsync(account, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await CreateAuditLogAsync(account, principal, cancellationToken, AuditActionType.Create);
+            var user = await _userManager.GetUserAsync(principal);
+            var command = _mapper.Map<CreateAccountCommand>(createAccountRequestDto);
+            command.UserId = user.Id;
+            return await _mediator.Send(command);
         }
         public async Task DeleteAsync(Guid id, ClaimsPrincipal principal, CancellationToken cancellationToken)
         {
-            var spec = new AccountGetAllSpec();
-            var item = await _unitOfWork.Accounts.GetByIdAsync(id, spec, cancellationToken);
-            if (item == null) return;
-            _unitOfWork.Accounts.Delete(item);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await CreateAuditLogAsync(item, principal, cancellationToken, AuditActionType.Delete);
+            var user = await _userManager.GetUserAsync(principal);
+            var command = new DeleteAccountCommand { Id = id, UserId = user.Id };
+            await _mediator.Send(command);
         }
 
-        public async Task<IEnumerable<Account>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<AccountResponseDto>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var spec = new AccountGetAllSpec();
-            return await _unitOfWork.Accounts.GetAllAsync(spec, cancellationToken);
+            return await _mediator.Send(new GetAllAccountsQuery());
         }
 
-        public async Task<Account?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<AccountResponseDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var spec = new AccountGetAllSpec();
-            return await _unitOfWork.Accounts.GetByIdAsync(id, spec, cancellationToken);
+            return await _mediator.Send(new GetAccountByIdQuery { Id = id });
+
         }
 
-        public async Task UpdateAsync(Account account, ClaimsPrincipal principal, CancellationToken cancellationToken)
+        public async Task UpdateAsync(UpdateAccountRequestDto updateAccountRequestDto, ClaimsPrincipal principal, CancellationToken cancellationToken)
         {
-            var oldAccount = await _unitOfWork.Accounts
-                .GetByIdAsNoTrackingAsync(account.Id, cancellationToken);
-
-            var oldValue = JsonSerializer.Serialize(oldAccount);
-
-            _unitOfWork.Accounts.Update(account);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            await CreateAuditLogAsync(account, principal, cancellationToken, AuditActionType.Update, oldValue);
+            var user = await _userManager.GetUserAsync(principal);
+            var command = _mapper.Map<UpdateAccountCommand>(updateAccountRequestDto);
+            command.UserId = user.Id;
+            await _mediator.Send(command);
         }
         public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
         {
-            var spec = new AccountGetAllSpec();
-            return await _unitOfWork.Accounts.ExistsByIdAsync(id, spec, cancellationToken);
+            return await _mediator.Send(new GetAccountExistsQuery { Id = id });
         }
 
-        public async Task CreateAuditLogAsync(Account account, ClaimsPrincipal principal, CancellationToken cancellationToken, AuditActionType auditActionType, string? oldValue = null)
-        {
-            var user = await _userManager.GetUserAsync(principal);
-
-            var auditLog = _mapper.Map<AuditLog>(account);
-            auditLog.ActionType = auditActionType;
-            auditLog.PerformedBy = user.Id.ToString();
-            auditLog.OldValue = oldValue;
-            await _auditLogService.LogAsync(auditLog, cancellationToken);
-        }
     }
 }

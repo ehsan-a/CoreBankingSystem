@@ -15,12 +15,10 @@ namespace CoreBanking.Api.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly IMapper _mapper;
 
-        public AccountsController(IAccountService accountService, IMapper mapper)
+        public AccountsController(IAccountService accountService)
         {
             _accountService = accountService;
-            _mapper = mapper;
         }
 
         // GET: api/Accounts
@@ -28,7 +26,7 @@ namespace CoreBanking.Api.Controllers
         public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetAccounts(CancellationToken cancellationToken)
         {
             var accounts = await _accountService.GetAllAsync(cancellationToken);
-            return Ok(_mapper.Map<IEnumerable<AccountResponseDto>>(accounts));
+            return Ok(accounts);
         }
 
         // GET: api/Accounts/5
@@ -43,7 +41,7 @@ namespace CoreBanking.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<AccountResponseDto>(account));
+            return Ok(account);
         }
 
         // PUT: api/Accounts/5
@@ -56,8 +54,8 @@ namespace CoreBanking.Api.Controllers
             }
             try
             {
-                var account = await _accountService.GetByIdAsync(id, cancellationToken);
-                await _accountService.UpdateAsync(_mapper.Map(updateAccountRequestDto, account), User, cancellationToken);
+                //var account = await _accountService.GetByIdAsync(id, cancellationToken);
+                await _accountService.UpdateAsync(updateAccountRequestDto, User, cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,10 +76,9 @@ namespace CoreBanking.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<AccountResponseDto>> PostAccount(CreateAccountRequestDto createAccountRequestDto, CancellationToken cancellationToken)
         {
-            var account = _mapper.Map<Account>(createAccountRequestDto);
-            await _accountService.CreateAsync(account, User, cancellationToken);
+            var account = await _accountService.CreateAsync(createAccountRequestDto, User, cancellationToken);
 
-            return CreatedAtAction("GetAccount", new { id = account.Id }, _mapper.Map<AccountResponseDto>(account));
+            return CreatedAtAction("GetAccount", new { id = account.Id }, account);
         }
 
         // DELETE: api/Accounts/5
