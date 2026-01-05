@@ -25,7 +25,8 @@ builder.Services
     .AddCustomCors(builder.Configuration)
     .AddJwtAuthentication(builder.Configuration)
     .AddAuthorizationPolicies()
-    .AddSwaggerDocumentation();
+    .AddSwaggerDocumentation()
+    .AddRateLimiting(builder.Configuration);
 
 builder.Services.AddOpenApi();
 
@@ -44,6 +45,7 @@ app.UseHttpsRedirection();
 app.UseCors("DevCors");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 
 app.Run();
