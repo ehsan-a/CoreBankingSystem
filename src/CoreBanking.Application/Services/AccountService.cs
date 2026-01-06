@@ -38,9 +38,9 @@ namespace CoreBanking.Application.Services
             await _mediator.Send(command);
         }
 
-        public async Task<IEnumerable<AccountResponseDto>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<AccountResponseDto>> GetAllAsync(int limit, int offset, CancellationToken cancellationToken)
         {
-            return await _mediator.Send(new GetAllAccountsQuery());
+            return await _mediator.Send(new GetAllAccountsQuery { Limit = limit, Offset = offset });
         }
 
         public async Task<AccountResponseDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken)

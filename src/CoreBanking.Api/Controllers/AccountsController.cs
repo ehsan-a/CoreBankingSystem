@@ -23,9 +23,9 @@ namespace CoreBanking.Api.Controllers
 
         // GET: api/Accounts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetAccounts(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<AccountResponseDto>>> GetAccounts(CancellationToken cancellationToken, int limit = 25, int offset = 0)
         {
-            var accounts = await _accountService.GetAllAsync(cancellationToken);
+            var accounts = await _accountService.GetAllAsync(limit, offset, cancellationToken);
             return Ok(accounts);
         }
 

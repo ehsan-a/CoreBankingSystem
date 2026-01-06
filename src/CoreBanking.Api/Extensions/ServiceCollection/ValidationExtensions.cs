@@ -1,5 +1,6 @@
-﻿using CoreBanking.Application.DTOs.Requests.Authentication;
+﻿using CoreBanking.Application.CQRS.Behaviors;
 using FluentValidation;
+using MediatR;
 using System.Reflection;
 
 namespace CoreBanking.Api.Extensions.ServiceCollection
@@ -10,6 +11,8 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
             this IServiceCollection services)
         {
             services.AddValidatorsFromAssembly(Assembly.Load("CoreBanking.Application"));
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             return services;
         }

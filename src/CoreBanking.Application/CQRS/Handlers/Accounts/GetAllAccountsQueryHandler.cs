@@ -20,7 +20,7 @@ namespace CoreBanking.Application.CQRS.Handlers.Accounts
 
         public async Task<IEnumerable<AccountResponseDto>> Handle(GetAllAccountsQuery request, CancellationToken cancellationToken)
         {
-            var spec = new AccountGetAllSpec();
+            var spec = new AccountGetAllSpec(request.Limit, request.Offset);
             var accounts = await _unitOfWork.Accounts.GetAllAsync(spec, cancellationToken);
             return _mapper.Map<IEnumerable<AccountResponseDto>>(accounts);
         }
