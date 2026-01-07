@@ -7,6 +7,10 @@ namespace CoreBanking.Application.Specifications.Accounts
 {
     public abstract class AccountBaseSpec : Specification<Account>
     {
-        protected AccountBaseSpec() { }
+        protected AccountBaseSpec()
+        {
+            AddInclude(x => x.DebitTransactions);
+            AddInclude(x => x.CreditTransactions);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CoreBanking.Application.DTOs.Requests.Account;
 using CoreBanking.Application.DTOs.Responses.Account;
+using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -42,6 +43,21 @@ namespace CoreBanking.Api.Controllers
             }
 
             return Ok(account);
+        }
+
+        // GET: api/Accounts/5/DebitTransactions
+        [HttpGet("{id}/DebitTransactions")]
+        public async Task<ActionResult<IEnumerable<TransactionResponseDto>>> GetAccountDebitTransactions(Guid id, CancellationToken cancellationToken)
+        {
+            var account = await _accountService.GetByIdAsync(id, cancellationToken);
+
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(await _accountService.GetDebitTransactionsAsync(id, cancellationToken));
         }
 
         // PUT: api/Accounts/5

@@ -3,6 +3,7 @@ using CoreBanking.Application.CQRS.Commands.Accounts;
 using CoreBanking.Application.CQRS.Queries.Accounts;
 using CoreBanking.Application.DTOs.Requests.Account;
 using CoreBanking.Application.DTOs.Responses.Account;
+using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using MediatR;
@@ -47,6 +48,11 @@ namespace CoreBanking.Application.Services
         {
             return await _mediator.Send(new GetAccountByIdQuery { Id = id });
 
+        }
+
+        public async Task<IEnumerable<TransactionResponseDto>> GetDebitTransactionsAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(new GetAccountDebitTransactionsQuery { Id = id });
         }
 
         public async Task UpdateAsync(UpdateAccountRequestDto updateAccountRequestDto, ClaimsPrincipal principal, CancellationToken cancellationToken)

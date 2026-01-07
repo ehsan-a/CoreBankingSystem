@@ -1,5 +1,6 @@
 ﻿using CoreBanking.Application.DTOs.Requests.Account;
 using CoreBanking.Application.DTOs.Responses.Account;
+using CoreBanking.Application.DTOs.Responses.Transaction;
 using System.Security.Claims;
 
 namespace CoreBanking.Application.Interfaces
@@ -12,5 +13,6 @@ namespace CoreBanking.Application.Interfaces
         Task<AccountResponseDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task UpdateAsync(UpdateAccountRequestDto updateAccountRequestDto, ClaimsPrincipal principal, CancellationToken cancellationToken);
         Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
+        Task<IEnumerable<TransactionResponseDto?>> GetDebitTransactionsAsync(Guid id, CancellationToken cancellationToken);
     }
 }
