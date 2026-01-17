@@ -1,51 +1,50 @@
-﻿using CoreBanking.Domain.Abstracttion;
+﻿using Ardalis.GuardClauses;
+using CoreBanking.Domain.Abstracttion;
 using CoreBanking.Domain.Enums;
 using CoreBanking.Domain.Events.Accounts;
-using CoreBanking.Domain.Exceptions;
+using CoreBanking.Domain.Extensions;
 using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Domain.Entities
 {
-    public class Account : BaseEntity, ISoftDeletable
+    public class Account : BaseEntity, ISoftDeletable, IAggregateRoot
     {
-        public Guid Id { get; set; }
-        public string? AccountNumber { get; set; } = default!;
+        public Account(string accountNumber, Guid customerId)
+        {
+            Guard.Against.NullOrEmpty(customerId, nameof(customerId));
+            Guard.Against.NullOrEmpty(accountNumber, nameof(accountNumber));
 
-        public decimal Balance { get; private set; } = default!;
+            AccountNumber = accountNumber;
+            CustomerId = customerId;
+        }
 
+#pragma warning disable CS8618 // Required by Entity Framework
+        private Account() { }
+
+        public string AccountNumber { get; private set; }
+        public decimal Balance { get; private set; } = 0;
         public AccountStatus Status { get; private set; } = AccountStatus.Active;
-
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        public Guid CustomerId { get; set; }
-        public Customer? Customer { get; set; } = default!;
+        public DateTime CreatedAt { get; private set; } = DateTime.Now;
+        public Guid CustomerId { get; private set; }
+        public Customer? Customer { get; private set; }
         public bool IsDeleted { get; set; } = false;
 
-        public ICollection<Transaction>? DebitTransactions { get; set; } = new List<Transaction>();
+        private readonly List<Transaction> _debitTransactions = new List<Transaction>();
+        private readonly List<Transaction> _creditTransactions = new List<Transaction>();
 
-        public ICollection<Transaction>? CreditTransactions { get; set; } = new List<Transaction>();
+        public IReadOnlyCollection<Transaction>? DebitTransactions => _debitTransactions.AsReadOnly();
+        public IReadOnlyCollection<Transaction>? CreditTransactions => _creditTransactions.AsReadOnly();
 
         public void Debit(decimal amount)
         {
-            if (Status != AccountStatus.Active)
-                throw new DomainException("Account is not active");
-
-            if (amount <= 0)
-                throw new DomainException("Invalid amount");
-
-            if (Balance < amount)
-                throw new DomainException("Insufficient funds");
+            Guard.Against.Debit(this, amount);
 
             Balance -= amount;
         }
 
         public void Credit(decimal amount)
         {
-            if (Status != AccountStatus.Active)
-                throw new DomainException("Account is not active");
-
-            if (amount <= 0)
-                throw new DomainException("Invalid amount");
+            Guard.Against.Credit(this, amount);
 
             Balance += amount;
         }

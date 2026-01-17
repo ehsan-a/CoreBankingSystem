@@ -51,12 +51,9 @@ namespace CoreBanking.Infrastructure.Identity
         public async Task RegisterAsync(RegisterRequestDto input)
         {
             await _registerValidator.ValidateAndThrowAsync(input);
-            var user = new User
-            {
-                UserName = input.Email,
-                Email = input.Email,
-                CustomerId = input.CustomerId
-            };
+            var user = new User(input.CustomerId);
+            user.UserName = input.Email;
+            user.Email = input.Email;
 
             var result = await _userManager.CreateAsync(user, input.Password);
 

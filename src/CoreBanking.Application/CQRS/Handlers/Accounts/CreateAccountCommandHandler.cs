@@ -23,14 +23,14 @@ namespace CoreBanking.Application.CQRS.Handlers.Accounts
 
         public async Task<AccountResponseDto> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = _mapper.Map<Account>(request);
-            var customerExists = await _unitOfWork.Customers.ExistsByIdAsync(account.CustomerId, cancellationToken);
+            var customerExists = await _unitOfWork.Customers.ExistsByIdAsync(request.CustomerId, cancellationToken);
 
             if (!customerExists)
             {
-                throw new NotFoundException("Customer", account.CustomerId);
+                throw new NotFoundException("Customer", request.CustomerId);
             }
-            account.AccountNumber = await _numberGenerator.GenerateAccountNumberAsync();
+            var accountNumber = await _numberGenerator.GenerateAccountNumberAsync();
+            var account = new Account(accountNumber, request.CustomerId);
             await _unitOfWork.Accounts.AddAsync(account, cancellationToken);
 
             Account.Create(account, request.UserId);

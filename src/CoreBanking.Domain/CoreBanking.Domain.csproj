@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

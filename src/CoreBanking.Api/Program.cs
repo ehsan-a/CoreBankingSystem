@@ -1,8 +1,12 @@
 using CoreBanking.Api.Extensions.ApplicationBuilder;
 using CoreBanking.Api.Extensions.ServiceCollection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NuGet.Protocol;
 using Serilog;
+using System.Net.Mime;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -25,13 +29,33 @@ builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddAuthorizationPolicies()
     .AddSwaggerDocumentation()
-    .AddRateLimiting(builder.Configuration);
+    .AddRateLimiting(builder.Configuration)
+    .AddCustomHealthChecks();
 
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 app.UseCustomMiddlewares();
+
+app.UseHealthChecks("/health",
+    new HealthCheckOptions
+    {
+        ResponseWriter = async (context, report) =>
+        {
+            var result = new
+            {
+                status = report.Status.ToString(),
+                errors = report.Entries.Select(e => new
+                {
+                    key = e.Key,
+                    value = Enum.GetName(typeof(HealthStatus), e.Value.Status)
+                })
+            }.ToJson();
+            context.Response.ContentType = MediaTypeNames.Application.Json;
+            await context.Response.WriteAsync(result);
+        }
+    });
 
 if (app.Environment.IsDevelopment())
 {
@@ -47,4 +71,5 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers();
 
+app.Logger.LogInformation("LAUNCHING CoreBanking.Api");
 app.Run();

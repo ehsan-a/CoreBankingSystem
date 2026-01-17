@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Application.Interfaces;
+using CoreBanking.Domain.Constants;
 using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,7 @@ namespace CoreBanking.Infrastructure.Security
         public async Task<string> GenerateTokenAsync(User user)
         {
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                Encoding.UTF8.GetBytes(AuthorizationConstants.JWT_SECRET_KEY));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var userClaims = await _userManager.GetClaimsAsync(user);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using CoreBanking.Domain.Constants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -27,7 +28,7 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
                         ValidIssuer = configuration["Jwt:Issuer"],
                         ValidAudience = configuration["Jwt:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"])
+                            Encoding.UTF8.GetBytes(AuthorizationConstants.JWT_SECRET_KEY)
                         ),
                         ClockSkew = TimeSpan.Zero
                     };

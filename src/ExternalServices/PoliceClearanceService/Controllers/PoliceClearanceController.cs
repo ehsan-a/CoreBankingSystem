@@ -26,5 +26,11 @@ namespace PoliceClearanceService.Controllers
             }
             return result;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHealthCheck()
+        {
+            return Ok();
+        }
     }
 }

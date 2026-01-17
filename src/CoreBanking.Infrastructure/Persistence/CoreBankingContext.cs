@@ -3,6 +3,7 @@ using CoreBanking.Infrastructure.Persistence.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 
 namespace CoreBanking.Infrastructure.Persistence
@@ -21,41 +22,11 @@ namespace CoreBanking.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Customer>().HasQueryFilter(c => !c.IsDeleted);
-            modelBuilder.Entity<Account>().HasQueryFilter(c => !c.IsDeleted);
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
             modelBuilder.HasSequence<long>("AccountNumberSequence")
             .StartsAt(1000000000)
             .IncrementsBy(1);
-
-            modelBuilder.Entity<Account>(entity =>
-            {
-                entity.HasIndex(a => a.AccountNumber)
-                      .IsUnique();
-
-                entity.Property(a => a.AccountNumber)
-                      .HasMaxLength(20);
-            });
-
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.DebitAccount)
-                .WithMany(a => a.DebitTransactions)
-                .HasForeignKey(t => t.DebitAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Transaction>()
-                .HasOne(t => t.CreditAccount)
-                .WithMany(a => a.CreditTransactions)
-                .HasForeignKey(t => t.CreditAccountId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Account>()
-            .Property(t => t.Balance)
-            .HasPrecision(18, 2);
-
-            modelBuilder.Entity<Transaction>()
-            .Property(t => t.Amount)
-            .HasPrecision(18, 2);
         }
 
         public DbSet<Customer> Customers { get; set; } = default!;

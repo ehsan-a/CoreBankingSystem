@@ -3,6 +3,7 @@ using CoreBanking.Application.EventHandlers.Authentications;
 using CoreBanking.Application.EventHandlers.Customers;
 using CoreBanking.Application.EventHandlers.Transactions;
 using CoreBanking.Application.Interfaces;
+using CoreBanking.Domain.Constants;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Domain.Events.Accounts;
 using CoreBanking.Domain.Events.Authentications;
@@ -16,6 +17,7 @@ using CoreBanking.Infrastructure.ExternalServices.PoliceClearance;
 using CoreBanking.Infrastructure.Generators;
 using CoreBanking.Infrastructure.Idempotency;
 using CoreBanking.Infrastructure.Identity;
+using CoreBanking.Infrastructure.Logging;
 using CoreBanking.Infrastructure.Persistence;
 using CoreBanking.Infrastructure.Repositories;
 using CoreBanking.Infrastructure.Security;
@@ -52,6 +54,7 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
             services.AddScoped<IIdempotencyService, IdempotencyService>();
             services.AddScoped<IAuditLogService, AuditLogService>();
             services.AddScoped<IEventDispatcher, EventDispatcher>();
+            services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
 
             services.AddScoped<IDomainEventHandler<TransactionCreatedEvent>, TransactionCreatedAuditHandler>();
             services.AddScoped<IDomainEventHandler<TransactionCreatedEvent>, TransactionCreatedIdempotencyHandler>();
@@ -67,14 +70,19 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
             services.AddScoped<IDomainEventHandler<AuthenticationCreatedEvent>, AuthenticationCreatedAuditHandler>();
 
 
+            var configSection = configuration.GetRequiredSection(BaseUrlConfiguration.CONFIG_NAME);
+            services.Configure<BaseUrlConfiguration>(configSection);
+            var baseUrlConfig = configSection.Get<BaseUrlConfiguration>();
+
+
             services.AddHttpClient<ICivilRegistryService, CivilRegistryClient>(c =>
-                c.BaseAddress = new Uri("https://localhost:7293/"));
+                c.BaseAddress = new Uri(baseUrlConfig.CivilRegistryBaseAddress));
 
             services.AddHttpClient<ICentralBankCreditCheckService, CentralBankCreditCheckClient>(c =>
-                c.BaseAddress = new Uri("https://localhost:7272/"));
+                c.BaseAddress = new Uri(baseUrlConfig.CentralBankCreditCheckBaseAddress));
 
             services.AddHttpClient<IPoliceClearanceService, PoliceClearanceClient>(c =>
-                c.BaseAddress = new Uri("https://localhost:7066/"));
+                c.BaseAddress = new Uri(baseUrlConfig.PoliceClearanceBaseAddress));
 
             return services;
         }

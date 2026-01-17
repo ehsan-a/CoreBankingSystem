@@ -7,6 +7,8 @@ namespace CoreBanking.Domain.Abstracttion
 {
     public abstract class BaseEntity
     {
+        public Guid Id { get; set; }
+
         private readonly List<IDomainEvent> _domainEvents = new();
         public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents;
 

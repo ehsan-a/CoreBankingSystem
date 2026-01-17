@@ -26,5 +26,11 @@ namespace CentralBankCreditCheckService.Controllers
             }
             return reslut;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHealthCheck()
+        {
+            return Ok();
+        }
     }
 }

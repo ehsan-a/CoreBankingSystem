@@ -28,7 +28,10 @@ namespace CivilRegistryService.Controllers
             return person;
         }
 
-
-
+        [HttpGet]
+        public async Task<IActionResult> GetHealthCheck()
+        {
+            return Ok();
+        }
     }
 }

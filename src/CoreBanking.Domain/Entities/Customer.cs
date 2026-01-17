@@ -1,19 +1,35 @@
-﻿using CoreBanking.Domain.Abstracttion;
+﻿using Ardalis.GuardClauses;
+using CoreBanking.Domain.Abstracttion;
 using CoreBanking.Domain.Events.Customers;
 using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Domain.Entities
 {
-    public class Customer : BaseEntity, ISoftDeletable
+    public class Customer : BaseEntity, ISoftDeletable, IAggregateRoot
     {
-        public Guid Id { get; set; }
-        public string NationalCode { get; set; } = default!;
-        public string FirstName { get; set; } = default!;
-        public string LastName { get; set; } = default!;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public ICollection<Account>? Accounts { get; set; } = new List<Account>();
-        public User? User { get; set; }
+        public Customer(string nationalCode, string firstName, string lastName)
+        {
+            Guard.Against.NullOrEmpty(nationalCode, nameof(nationalCode));
+            Guard.Against.NullOrEmpty(firstName, nameof(firstName));
+            Guard.Against.NullOrEmpty(lastName, nameof(lastName));
+
+            NationalCode = nationalCode;
+            FirstName = firstName;
+            LastName = lastName;
+        }
+
+#pragma warning disable CS8618 // Required by Entity Framework
+        private Customer() { }
+
+        public string NationalCode { get; private set; }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public DateTime CreatedAt { get; private set; } = DateTime.Now;
+        public User? User { get; private set; }
         public bool IsDeleted { get; set; } = false;
+
+        private readonly List<Account> _accounts = new List<Account>();
+        public IReadOnlyCollection<Account>? Accounts => _accounts.AsReadOnly();
 
         public static Customer Create(Customer customer, Guid userId)
         {

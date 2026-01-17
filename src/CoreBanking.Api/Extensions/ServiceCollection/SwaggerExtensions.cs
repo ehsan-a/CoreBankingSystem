@@ -20,7 +20,7 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
                 };
 
                 c.AddSecurityDefinition("Bearer", securityScheme);
-
+                c.EnableAnnotations();
                 c.AddSecurityRequirement(document =>
                     new OpenApiSecurityRequirement
                     {

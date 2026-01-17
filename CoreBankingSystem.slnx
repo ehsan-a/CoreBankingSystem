@@ -10,4 +10,7 @@
     <Project Path="src/ExternalServices/CivilRegistryService/CivilRegistryService.csproj" />
     <Project Path="src/ExternalServices/PoliceClearanceService/PoliceClearanceService.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UnitTests/UnitTests.csproj" Id="d5659d3b-2900-4a25-879e-3e22969ca788" />
+  </Folder>
 </Solution>

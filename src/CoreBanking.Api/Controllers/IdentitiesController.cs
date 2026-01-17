@@ -2,6 +2,7 @@
 using CoreBanking.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CoreBanking.Api.Controllers
 {
@@ -25,6 +26,7 @@ namespace CoreBanking.Api.Controllers
         }
 
         [HttpPost("login")]
+        [SwaggerOperation(Summary = "Authenticates a user")]
         public async Task<IActionResult> Login(LoginRequestDto dto)
         {
             var result = await _identityService.LoginAsync(dto);

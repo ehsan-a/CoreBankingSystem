@@ -1,20 +1,30 @@
-﻿using CoreBanking.Domain.Abstracttion;
+﻿using Ardalis.GuardClauses;
+using CoreBanking.Domain.Abstracttion;
 using CoreBanking.Domain.Events.Authentications;
-using CoreBanking.Domain.Events.Customers;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Domain.Entities
 {
-    public class Authentication : BaseEntity
+    public class Authentication : BaseEntity, IAggregateRoot
     {
-        public Guid Id { get; set; }
-        public string NationalCode { get; set; }
-        public bool CentralBankCreditCheckPassed { get; set; }
-        public bool CivilRegistryVerified { get; set; }
-        public bool PoliceClearancePassed { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public Authentication(string nationalCode, bool centralBankCreditCheckPassed, bool civilRegistryVerified, bool policeClearancePassed)
+        {
+            Guard.Against.NullOrEmpty(nationalCode, nameof(nationalCode));
+
+            NationalCode = nationalCode;
+            CentralBankCreditCheckPassed = centralBankCreditCheckPassed;
+            CivilRegistryVerified = civilRegistryVerified;
+            PoliceClearancePassed = policeClearancePassed;
+        }
+
+#pragma warning disable CS8618 // Required by Entity Framework
+        private Authentication() { }
+
+        public string NationalCode { get; private set; }
+        public bool CentralBankCreditCheckPassed { get; private set; }
+        public bool CivilRegistryVerified { get; private set; }
+        public bool PoliceClearancePassed { get; private set; }
+        public DateTime CreatedAt { get; private set; } = DateTime.Now;
 
         public static Authentication Create(Authentication authentication, Guid userId)
         {
