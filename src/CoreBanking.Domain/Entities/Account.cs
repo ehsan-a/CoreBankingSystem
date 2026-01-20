@@ -49,6 +49,12 @@ namespace CoreBanking.Domain.Entities
             Balance += amount;
         }
 
+        public void ChangeStatus(AccountStatus status)
+        {
+            Guard.Against.EnumOutOfRange(status, nameof(status));
+            Status = status;
+        }
+
         public static Account Create(Account account, Guid userId)
         {
             account.AddDomainEvent(

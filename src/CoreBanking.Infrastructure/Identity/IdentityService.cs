@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Application.DTOs.Requests.Authentication;
+using CoreBanking.Application.DTOs.Responses.Identities;
 using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
@@ -30,7 +31,7 @@ namespace CoreBanking.Infrastructure.Identity
             _registerValidator = registerValidator;
         }
 
-        public async Task<(string AccessToken, string RefreshToken)> LoginAsync(LoginRequestDto input)
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto input)
         {
             await _validator.ValidateAndThrowAsync(input);
             var user = await _userManager.FindByEmailAsync(input.Email);
@@ -45,7 +46,7 @@ namespace CoreBanking.Infrastructure.Identity
 
             var accessToken = await _jwtTokenService.GenerateTokenAsync(user);
             var refreshToken = await _refreshTokenService.GenerateTokenAsync(user.Id);
-            return (accessToken, refreshToken);
+            return new LoginResponseDto { AccessToken=accessToken,RefreshToken=refreshToken};
         }
 
         public async Task RegisterAsync(RegisterRequestDto input)

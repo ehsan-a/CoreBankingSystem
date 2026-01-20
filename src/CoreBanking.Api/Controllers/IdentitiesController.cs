@@ -1,4 +1,5 @@
 ﻿using CoreBanking.Application.DTOs.Requests.Authentication;
+using CoreBanking.Application.DTOs.Responses.Identities;
 using CoreBanking.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,10 +28,10 @@ namespace CoreBanking.Api.Controllers
 
         [HttpPost("login")]
         [SwaggerOperation(Summary = "Authenticates a user")]
-        public async Task<IActionResult> Login(LoginRequestDto dto)
+        public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto dto)
         {
             var result = await _identityService.LoginAsync(dto);
-            return Ok(new { accessToken = result.AccessToken, refreshToken = result.RefreshToken });
+            return Ok(result);
         }
 
         [HttpPost("logout")]

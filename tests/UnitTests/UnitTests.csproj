@@ -19,9 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="CoreBanking.Application\" />
-    <Folder Include="CoreBanking.Domain\" />
-    <Folder Include="Builders\" />
+    <Folder Include="Application\Services\" />
+    <Folder Include="Api\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CoreBanking.Domain\CoreBanking.Domain.csproj" />
   </ItemGroup>
 
 </Project>
