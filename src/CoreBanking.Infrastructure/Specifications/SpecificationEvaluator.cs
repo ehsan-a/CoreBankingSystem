@@ -1,4 +1,4 @@
-﻿using CoreBanking.Application.Interfaces;
+﻿using CoreBanking.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoreBanking.Infrastructure.Specifications

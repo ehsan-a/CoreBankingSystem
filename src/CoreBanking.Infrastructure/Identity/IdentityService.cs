@@ -46,7 +46,7 @@ namespace CoreBanking.Infrastructure.Identity
 
             var accessToken = await _jwtTokenService.GenerateTokenAsync(user);
             var refreshToken = await _refreshTokenService.GenerateTokenAsync(user.Id);
-            return new LoginResponseDto { AccessToken=accessToken,RefreshToken=refreshToken};
+            return new LoginResponseDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
 
         public async Task RegisterAsync(RegisterRequestDto input)

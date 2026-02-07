@@ -1,30 +1,30 @@
 ﻿using CoreBanking.Application.CQRS.Commands.Accounts;
 using CoreBanking.Application.CQRS.Interfaces;
-using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Accounts;
 using CoreBanking.Domain.Entities;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Accounts
 {
     public class DeleteAccountCommandHandler : ICommandHandler<DeleteAccountCommand>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAccountRepository _accountRepository;
 
-        public DeleteAccountCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteAccountCommandHandler(IAccountRepository accountRepository)
         {
-            _unitOfWork = unitOfWork;
+            _accountRepository = accountRepository;
         }
 
         public async Task Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
             var spec = new AccountGetAllSpec();
-            var item = await _unitOfWork.Accounts.GetByIdAsync(request.Id, spec, cancellationToken);
+            var item = await _accountRepository.GetByIdAsync(request.Id, spec, cancellationToken);
             if (item == null) return;
 
             Account.Delete(item, request.UserId);
 
-            _unitOfWork.Accounts.Delete(item);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _accountRepository.Delete(item);
+            await _accountRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 }

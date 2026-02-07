@@ -1,35 +1,41 @@
-﻿using FluentValidation;
+﻿using CoreBanking.Application.Extensions;
+using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace CoreBanking.Application.CQRS.Behaviors
 {
-    public sealed class ValidationBehavior<TRequest, TResponse>
-    : IPipelineBehavior<TRequest, TResponse>
+    public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
+        private readonly ILogger<ValidationBehavior<TRequest, TResponse>> _logger;
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-        public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+        public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators, ILogger<ValidationBehavior<TRequest, TResponse>> logger)
         {
             _validators = validators;
+            _logger = logger;
         }
 
-        public async Task<TResponse> Handle(
-            TRequest request,
-            RequestHandlerDelegate<TResponse> next,
-            CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            if (_validators.Any())
+            var typeName = request.GetGenericTypeName();
+
+            _logger.LogInformation("Validating command {CommandType}", typeName);
+
+            var validationTasks = _validators.Select(v => v.ValidateAsync(request, cancellationToken));
+            var validationResults = await Task.WhenAll(validationTasks);
+
+            var failures = validationResults
+                .SelectMany(result => result.Errors)
+                .Where(error => error != null)
+                .ToList();
+
+            if (failures.Any())
             {
-                var context = new ValidationContext<TRequest>(request);
+                _logger.LogWarning("Validation errors - {CommandType} - Command: {@Command} - Errors: {@ValidationErrors}", typeName, request, failures);
 
-                var failures = _validators
-                    .Select(v => v.Validate(context))
-                    .SelectMany(r => r.Errors)
-                    .Where(f => f != null)
-                    .ToList();
-
-                if (failures.Count != 0)
-                    throw new ValidationException(failures);
+                throw new ArgumentException(
+                    $"Command Validation Errors for type {typeof(TRequest).Name}", new ValidationException("Validation exception", failures));
             }
 
             return await next();

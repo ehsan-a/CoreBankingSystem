@@ -32,6 +32,7 @@ namespace CoreBanking.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AccountNumber")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -54,12 +55,11 @@ namespace CoreBanking.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountNumber")
-                        .IsUnique()
-                        .HasFilter("[AccountNumber] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("CoreBanking.Domain.Entities.AuditLog", b =>
@@ -93,7 +93,7 @@ namespace CoreBanking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("CoreBanking.Domain.Entities.Authentication", b =>
@@ -120,7 +120,7 @@ namespace CoreBanking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authentications");
+                    b.ToTable("Authentications", (string)null);
                 });
 
             modelBuilder.Entity("CoreBanking.Domain.Entities.Customer", b =>
@@ -149,7 +149,7 @@ namespace CoreBanking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("CoreBanking.Domain.Entities.Transaction", b =>
@@ -172,6 +172,7 @@ namespace CoreBanking.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
@@ -183,7 +184,7 @@ namespace CoreBanking.Infrastructure.Migrations
 
                     b.HasIndex("DebitAccountId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
                 });
 
             modelBuilder.Entity("CoreBanking.Domain.Entities.User", b =>
@@ -280,7 +281,7 @@ namespace CoreBanking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("IdempotencyKeys");
+                    b.ToTable("IdempotencyKeys", (string)null);
                 });
 
             modelBuilder.Entity("CoreBanking.Infrastructure.Persistence.Entities.RefreshToken", b =>
@@ -312,7 +313,7 @@ namespace CoreBanking.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

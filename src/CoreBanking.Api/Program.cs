@@ -1,23 +1,24 @@
 using CoreBanking.Api.Extensions.ApplicationBuilder;
 using CoreBanking.Api.Extensions.ServiceCollection;
+using CoreBanking.Api.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using NuGet.Protocol;
 using Serilog;
-using System.Net.Mime;
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    //.WriteTo.File("logs/api-log.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+.WriteTo.Console()
+//.WriteTo.File("logs/api-log.txt", rollingInterval: RollingInterval.Day)
+.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
+
+builder.Services.AddOpenApi();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services
@@ -30,32 +31,18 @@ builder.Services
     .AddAuthorizationPolicies()
     .AddSwaggerDocumentation()
     .AddRateLimiting(builder.Configuration)
-    .AddCustomHealthChecks();
+    .AddCustomHealthChecks(builder.Configuration);
 
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 app.UseCustomMiddlewares();
 
-app.UseHealthChecks("/health",
-    new HealthCheckOptions
-    {
-        ResponseWriter = async (context, report) =>
-        {
-            var result = new
-            {
-                status = report.Status.ToString(),
-                errors = report.Entries.Select(e => new
-                {
-                    key = e.Key,
-                    value = Enum.GetName(typeof(HealthStatus), e.Value.Status)
-                })
-            }.ToJson();
-            context.Response.ContentType = MediaTypeNames.Application.Json;
-            await context.Response.WriteAsync(result);
-        }
-    });
+//app.UseHealthChecks("/health",
+//    new HealthCheckOptions
+//    {
+//        ResponseWriter = HealthCheckResponses.WriteResponse
+//    });
 
 if (app.Environment.IsDevelopment())
 {
@@ -71,5 +58,25 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers();
 
+app.MapHealthChecks("/health",
+    new HealthCheckOptions
+    {
+        ResponseWriter = HealthCheckResponses.WriteResponse
+    });
+//.RequireAuthorization()
+//.RequireRateLimiting(RateLimitPolicies.Fixed);
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = healthCheck => healthCheck.Tags.Contains("ready"),
+    ResponseWriter = HealthCheckResponses.WriteResponse
+});
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+});
+
 app.Logger.LogInformation("LAUNCHING CoreBanking.Api");
+
 app.Run();

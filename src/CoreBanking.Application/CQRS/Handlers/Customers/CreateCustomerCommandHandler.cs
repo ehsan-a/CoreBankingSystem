@@ -6,17 +6,20 @@ using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Authentications;
 using CoreBanking.Domain.Entities;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Customers
 {
     public class CreateCustomerCommandHandler : ICommandHandler<CreateCustomerCommand, CustomerResponseDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IMapper _mapper;
 
-        public CreateCustomerCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateCustomerCommandHandler(ICustomerRepository customerRepository, IAuthenticationRepository authenticationRepository, IMapper mapper)
         {
-            _unitOfWork = unitOfWork;
+            _customerRepository = customerRepository;
+            _authenticationRepository = authenticationRepository;
             _mapper = mapper;
         }
 
@@ -24,18 +27,18 @@ namespace CoreBanking.Application.CQRS.Handlers.Customers
         {
             var customer = _mapper.Map<Customer>(request);
             var spec = new AuthenticationGetAllSpec();
-            var authenticationResult = await _unitOfWork.Authentications.GetByNationalCodeAsync(customer.NationalCode, spec, cancellationToken);
-            if (await _unitOfWork.Customers.ExistsByNationalCodeAsync(customer.NationalCode, cancellationToken))
+            var authenticationResult = await _authenticationRepository.GetByNationalCodeAsync(customer.NationalCode, spec, cancellationToken);
+            if (await _customerRepository.ExistsByNationalCodeAsync(customer.NationalCode, cancellationToken))
                 throw new ConflictException("Customer already exists.");
             if (authenticationResult == null)
                 throw new UnauthorizedAccessException("Customer Authentication Not Found.");
             if (!authenticationResult.CentralBankCreditCheckPassed || !authenticationResult.CivilRegistryVerified || !authenticationResult.PoliceClearancePassed)
                 throw new UnauthorizedAccessException("Customer authentication result rejected.");
-            await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
+            await _customerRepository.AddAsync(customer, cancellationToken);
 
             Customer.Create(customer, request.UserId);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _customerRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
             return _mapper.Map<CustomerResponseDto>(customer);
         }
     }

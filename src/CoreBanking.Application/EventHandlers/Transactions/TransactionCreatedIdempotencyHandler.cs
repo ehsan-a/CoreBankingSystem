@@ -1,16 +1,12 @@
 ﻿using AutoMapper;
 using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
-using CoreBanking.Domain.Entities;
-using CoreBanking.Domain.Enums;
 using CoreBanking.Domain.Events.Transactions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MediatR;
 
 namespace CoreBanking.Application.EventHandlers.Transactions
 {
-    public class TransactionCreatedIdempotencyHandler : IDomainEventHandler<TransactionCreatedEvent>
+    public class TransactionCreatedIdempotencyHandler : INotificationHandler<TransactionCreatedEvent>
     {
         private readonly IIdempotencyService _idempotencyService;
         private readonly IMapper _mapper;
@@ -21,7 +17,7 @@ namespace CoreBanking.Application.EventHandlers.Transactions
             _mapper = mapper;
         }
 
-        public async Task Handle(TransactionCreatedEvent domainEvent)
+        public async Task Handle(TransactionCreatedEvent domainEvent, CancellationToken cancellationToken)
         {
             await _idempotencyService.SaveResultAsync(domainEvent.IdempotencyKey,
                                                       _mapper.Map<TransactionResponseDto>(domainEvent.Transaction),

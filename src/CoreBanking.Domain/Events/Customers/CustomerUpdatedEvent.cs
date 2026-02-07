@@ -1,15 +1,11 @@
 ﻿using CoreBanking.Domain.Entities;
-using CoreBanking.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MediatR;
 
 namespace CoreBanking.Domain.Events.Customers
 {
-    public class CustomerUpdatedEvent : IDomainEvent
+    public class CustomerUpdatedEvent : INotification
     {
         public Customer Customer { get; }
-        public DateTime OccurredOn { get; } = DateTime.Now;
         public string? OldValue { get; }
         public Guid UserId { get; }
 

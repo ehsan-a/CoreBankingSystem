@@ -1,12 +1,11 @@
 ﻿using CoreBanking.Domain.Entities;
-using CoreBanking.Domain.Interfaces;
+using MediatR;
 
 namespace CoreBanking.Domain.Events.Accounts
 {
-    public class AccountUpdatedEvent : IDomainEvent
+    public class AccountUpdatedEvent : INotification
     {
         public Account Account { get; }
-        public DateTime OccurredOn { get; } = DateTime.Now;
         public string? OldValue { get; }
         public Guid UserId { get; }
 

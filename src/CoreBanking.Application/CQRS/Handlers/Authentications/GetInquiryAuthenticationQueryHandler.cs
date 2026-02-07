@@ -6,20 +6,21 @@ using CoreBanking.Application.DTOs.Responses.ExternalServices;
 using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Authentications;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Authentications
 {
     public class GetInquiryAuthenticationQueryHandler : IQueryHandler<GetInquiryAuthenticationQuery, AuthenticationResponseDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAuthenticationRepository _authenticationRepository;
         private readonly IMapper _mapper;
         private readonly ICivilRegistryService _civilRegistryService;
         private readonly IPoliceClearanceService _policeClearanceService;
         private readonly ICentralBankCreditCheckService _centralBankCreditCheckService;
 
-        public GetInquiryAuthenticationQueryHandler(IUnitOfWork unitOfWork, IMapper mapper, ICivilRegistryService civilRegistryService, IPoliceClearanceService policeClearanceService, ICentralBankCreditCheckService centralBankCreditCheckService)
+        public GetInquiryAuthenticationQueryHandler(IAuthenticationRepository authenticationRepository, IMapper mapper, ICivilRegistryService civilRegistryService, IPoliceClearanceService policeClearanceService, ICentralBankCreditCheckService centralBankCreditCheckService)
         {
-            _unitOfWork = unitOfWork;
+            _authenticationRepository = authenticationRepository;
             _mapper = mapper;
             _civilRegistryService = civilRegistryService;
             _policeClearanceService = policeClearanceService;
@@ -30,7 +31,7 @@ namespace CoreBanking.Application.CQRS.Handlers.Authentications
         {
             var person = await GetCivilRegistryAsync(request.NationalCode);
             var spec = new AuthenticationGetAllSpec();
-            var authentication = await _unitOfWork.Authentications.GetByNationalCodeAsync(request.NationalCode, spec, cancellationToken);
+            var authentication = await _authenticationRepository.GetByNationalCodeAsync(request.NationalCode, spec, cancellationToken);
             if (person == null) throw new NotFoundException("Person", request.NationalCode);
             return new AuthenticationResponseDto
             {

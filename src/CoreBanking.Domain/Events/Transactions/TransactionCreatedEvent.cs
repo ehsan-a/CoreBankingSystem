@@ -1,15 +1,11 @@
 ﻿using CoreBanking.Domain.Entities;
-using CoreBanking.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MediatR;
 
 namespace CoreBanking.Domain.Events.Transactions
 {
-    public class TransactionCreatedEvent : IDomainEvent
+    public class TransactionCreatedEvent : INotification
     {
         public Transaction Transaction { get; }
-        public DateTime OccurredOn { get; } = DateTime.Now;
         public string IdempotencyKey { get; }
         public Guid UserId { get; }
 

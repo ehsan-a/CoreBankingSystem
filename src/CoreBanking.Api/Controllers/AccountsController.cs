@@ -1,9 +1,7 @@
-﻿using AutoMapper;
-using CoreBanking.Application.DTOs.Requests.Account;
+﻿using CoreBanking.Application.DTOs.Requests.Account;
 using CoreBanking.Application.DTOs.Responses.Account;
 using CoreBanking.Application.DTOs.Responses.Transaction;
 using CoreBanking.Application.Interfaces;
-using CoreBanking.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

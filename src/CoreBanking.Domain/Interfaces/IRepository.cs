@@ -4,9 +4,8 @@ using System.Text;
 
 namespace CoreBanking.Domain.Interfaces
 {
-    public interface IDomainEvent
+    public interface IRepository<T> where T : IAggregateRoot
     {
-        DateTime OccurredOn { get; }
+        IUnitOfWork UnitOfWork { get; }
     }
-
 }

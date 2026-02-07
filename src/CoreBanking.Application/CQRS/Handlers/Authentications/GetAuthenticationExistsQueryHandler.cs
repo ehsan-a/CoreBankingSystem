@@ -1,23 +1,21 @@
 ﻿using CoreBanking.Application.CQRS.Interfaces;
 using CoreBanking.Application.CQRS.Queries.Authentications;
-using CoreBanking.Application.Interfaces;
-using CoreBanking.Application.Specifications.Authentications;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Authentications
 {
     public class GetAuthenticationExistsQueryHandler : IQueryHandler<GetAuthenticationExistsQuery, bool>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAuthenticationRepository _authenticationRepository;
 
-        public GetAuthenticationExistsQueryHandler(IUnitOfWork unitOfWork)
+        public GetAuthenticationExistsQueryHandler(IAuthenticationRepository authenticationRepository)
         {
-            _unitOfWork = unitOfWork;
+            _authenticationRepository = authenticationRepository;
         }
 
         public async Task<bool> Handle(GetAuthenticationExistsQuery request, CancellationToken cancellationToken)
         {
-            var spec = new AuthenticationGetAllSpec();
-            return await _unitOfWork.Authentications.ExistsByNationalCodeAsync(request.NationalCode, spec, cancellationToken);
+            return await _authenticationRepository.ExistsByNationalCodeAsync(request.NationalCode, cancellationToken);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using CoreBanking.Application.Interfaces;
+﻿using CoreBanking.Domain.Interfaces;
 using System.Linq.Expressions;
 
 namespace CoreBanking.Application.Specifications

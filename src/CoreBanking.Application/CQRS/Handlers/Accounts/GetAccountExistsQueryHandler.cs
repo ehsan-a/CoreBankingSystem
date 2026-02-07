@@ -1,23 +1,21 @@
 ﻿using CoreBanking.Application.CQRS.Interfaces;
 using CoreBanking.Application.CQRS.Queries.Accounts;
-using CoreBanking.Application.Interfaces;
-using CoreBanking.Application.Specifications.Accounts;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Accounts
 {
     public class GetAccountExistsQueryHandler : IQueryHandler<GetAccountExistsQuery, bool>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAccountRepository _accountRepository;
 
-        public GetAccountExistsQueryHandler(IUnitOfWork unitOfWork)
+        public GetAccountExistsQueryHandler(IAccountRepository accountRepository)
         {
-            _unitOfWork = unitOfWork;
+            _accountRepository = accountRepository;
         }
 
         public async Task<bool> Handle(GetAccountExistsQuery request, CancellationToken cancellationToken)
         {
-            var spec = new AccountGetAllSpec();
-            return await _unitOfWork.Accounts.ExistsByIdAsync(request.Id, spec, cancellationToken);
+            return await _accountRepository.ExistsByIdAsync(request.Id, cancellationToken);
         }
     }
 }

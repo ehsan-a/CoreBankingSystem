@@ -1,12 +1,11 @@
 ﻿using CoreBanking.Domain.Entities;
-using CoreBanking.Domain.Interfaces;
+using MediatR;
 
 namespace CoreBanking.Domain.Events.Accounts
 {
-    public class AccountDeletedEvent : IDomainEvent
+    public class AccountDeletedEvent : INotification
     {
         public Account Account { get; }
-        public DateTime OccurredOn { get; } = DateTime.Now;
         public Guid UserId { get; }
 
         public AccountDeletedEvent(Account account, Guid userId)

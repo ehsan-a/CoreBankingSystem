@@ -6,18 +6,21 @@ using CoreBanking.Application.Exceptions;
 using CoreBanking.Application.Interfaces;
 using CoreBanking.Application.Specifications.Accounts;
 using CoreBanking.Domain.Entities;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Transactions
 {
     public class CreateTransactionCommandHandler : ICommandHandler<CreateTransactionCommand, TransactionResponseDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly IMapper _mapper;
         private readonly IIdempotencyService _idempotencyService;
 
-        public CreateTransactionCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IIdempotencyService idempotencyService)
+        public CreateTransactionCommandHandler(ITransactionRepository transactionRepository, IAccountRepository accountRepository, IMapper mapper, IIdempotencyService idempotencyService)
         {
-            _unitOfWork = unitOfWork;
+            _transactionRepository = transactionRepository;
+            _accountRepository = accountRepository;
             _mapper = mapper;
             _idempotencyService = idempotencyService;
         }
@@ -34,27 +37,27 @@ namespace CoreBanking.Application.CQRS.Handlers.Transactions
                 throw new ConflictException(previousResult);
             }
 
-            await _unitOfWork.BeginTransactionAsync();
+            await _transactionRepository.UnitOfWork.BeginTransactionAsync();
 
             try
             {
                 var spec = new AccountGetAllSpec();
-                var from = await _unitOfWork.Accounts.GetByIdAsync(request.DebitAccountId, spec, cancellationToken);
-                var to = await _unitOfWork.Accounts.GetByIdAsync(request.CreditAccountId, spec, cancellationToken);
+                var from = await _accountRepository.GetByIdAsync(request.DebitAccountId, spec, cancellationToken);
+                var to = await _accountRepository.GetByIdAsync(request.CreditAccountId, spec, cancellationToken);
 
                 from.Debit(request.Amount);
                 to.Credit(request.Amount);
 
                 var transaction = _mapper.Map<Transaction>(request);
-                await _unitOfWork.Transactions.AddAsync(transaction, cancellationToken);
+                await _transactionRepository.AddAsync(transaction, cancellationToken);
                 Transaction.Create(transaction, request.IdempotencyKey, request.UserId);
 
-                await _unitOfWork.CommitAsync();
+                await _transactionRepository.UnitOfWork.CommitTransactionAsync(_transactionRepository.UnitOfWork.GetCurrentTransaction());
                 return _mapper.Map<TransactionResponseDto>(transaction);
             }
             catch
             {
-                await _unitOfWork.RollbackAsync();
+                _transactionRepository.UnitOfWork.RollbackTransaction();
                 throw;
             }
 

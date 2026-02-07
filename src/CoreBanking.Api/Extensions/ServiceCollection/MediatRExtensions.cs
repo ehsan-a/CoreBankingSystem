@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using CoreBanking.Application.CQRS.Behaviors;
+using System.Reflection;
 
 namespace CoreBanking.Api.Extensions.ServiceCollection
 {
@@ -8,7 +9,10 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
            this IServiceCollection services)
         {
             services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(Assembly.Load("CoreBanking.Application")));
+            {
+                cfg.RegisterServicesFromAssembly(Assembly.Load("CoreBanking.Application"));
+                cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+            });
 
             return services;
         }

@@ -4,14 +4,11 @@ using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Domain.Enums;
 using CoreBanking.Domain.Events.Transactions;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
+using MediatR;
 
 namespace CoreBanking.Application.EventHandlers.Transactions
 {
-    public class TransactionCreatedAuditHandler : IDomainEventHandler<TransactionCreatedEvent>
+    public class TransactionCreatedAuditHandler : INotificationHandler<TransactionCreatedEvent>
     {
         private readonly IAuditLogService _auditLogService;
         private readonly IMapper _mapper;
@@ -22,7 +19,7 @@ namespace CoreBanking.Application.EventHandlers.Transactions
             _mapper = mapper;
         }
 
-        public async Task Handle(TransactionCreatedEvent domainEvent)
+        public async Task Handle(TransactionCreatedEvent domainEvent, CancellationToken cancellationToken)
         {
             var transactionDto = _mapper.Map<TransactionResponseDto>(domainEvent.Transaction);
 

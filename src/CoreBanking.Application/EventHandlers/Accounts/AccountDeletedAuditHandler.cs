@@ -3,10 +3,11 @@ using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Domain.Enums;
 using CoreBanking.Domain.Events.Accounts;
+using MediatR;
 
 namespace CoreBanking.Application.EventHandlers.Accounts
 {
-    public class AccountDeletedAuditHandler : IDomainEventHandler<AccountDeletedEvent>
+    public class AccountDeletedAuditHandler : INotificationHandler<AccountDeletedEvent>
     {
         private readonly IAuditLogService _auditLogService;
         private readonly IMapper _mapper;
@@ -17,7 +18,7 @@ namespace CoreBanking.Application.EventHandlers.Accounts
             _mapper = mapper;
         }
 
-        public async Task Handle(AccountDeletedEvent domainEvent)
+        public async Task Handle(AccountDeletedEvent domainEvent, CancellationToken cancellationToken)
         {
             var auditLog = _mapper.Map<AuditLog>(domainEvent.Account);
             auditLog.ActionType = AuditActionType.Delete;

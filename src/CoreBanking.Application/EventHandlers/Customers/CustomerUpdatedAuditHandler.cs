@@ -3,13 +3,11 @@ using CoreBanking.Application.Interfaces;
 using CoreBanking.Domain.Entities;
 using CoreBanking.Domain.Enums;
 using CoreBanking.Domain.Events.Customers;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MediatR;
 
 namespace CoreBanking.Application.EventHandlers.Customers
 {
-    public class CustomerUpdatedAuditHandler : IDomainEventHandler<CustomerUpdatedEvent>
+    public class CustomerUpdatedAuditHandler : INotificationHandler<CustomerUpdatedEvent>
     {
         private readonly IAuditLogService _auditLogService;
         private readonly IMapper _mapper;
@@ -20,7 +18,7 @@ namespace CoreBanking.Application.EventHandlers.Customers
             _mapper = mapper;
         }
 
-        public async Task Handle(CustomerUpdatedEvent domainEvent)
+        public async Task Handle(CustomerUpdatedEvent domainEvent, CancellationToken cancellationToken)
         {
             var auditLog = _mapper.Map<AuditLog>(domainEvent.Customer);
             auditLog.ActionType = AuditActionType.Update;

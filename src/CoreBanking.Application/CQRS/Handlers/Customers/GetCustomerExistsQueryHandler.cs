@@ -1,23 +1,21 @@
 ﻿using CoreBanking.Application.CQRS.Interfaces;
 using CoreBanking.Application.CQRS.Queries.Customers;
-using CoreBanking.Application.Interfaces;
-using CoreBanking.Application.Specifications.Customers;
+using CoreBanking.Domain.Interfaces;
 
 namespace CoreBanking.Application.CQRS.Handlers.Customers
 {
     public class GetCustomerExistsQueryHandler : IQueryHandler<GetCustomerExistsQuery, bool>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICustomerRepository _customerRepository;
 
-        public GetCustomerExistsQueryHandler(IUnitOfWork unitOfWork)
+        public GetCustomerExistsQueryHandler(ICustomerRepository customerRepository)
         {
-            _unitOfWork = unitOfWork;
+            _customerRepository = customerRepository;
         }
 
         public async Task<bool> Handle(GetCustomerExistsQuery request, CancellationToken cancellationToken)
         {
-            var spec = new CustomerGetAllSpec();
-            return await _unitOfWork.Customers.ExistsByIdAsync(request.Id, spec, cancellationToken);
+            return await _customerRepository.ExistsByIdAsync(request.Id, cancellationToken);
         }
     }
 }
