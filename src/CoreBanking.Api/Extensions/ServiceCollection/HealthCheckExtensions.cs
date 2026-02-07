@@ -36,7 +36,7 @@ namespace CoreBanking.Api.Extensions.ServiceCollection
 
             services.Configure<HealthCheckPublisherOptions>(options =>
             {
-                options.Delay = TimeSpan.FromSeconds(2);
+                options.Delay = TimeSpan.FromSeconds(300);
                 //options.Predicate = healthCheck => healthCheck.Tags.Contains("sample");
             });
 

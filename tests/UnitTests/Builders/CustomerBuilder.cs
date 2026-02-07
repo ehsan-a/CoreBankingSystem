@@ -9,6 +9,7 @@ namespace UnitTests.Builders
         public string NationalCode => "0024264788";
         public string FirstName => "Ehsan";
         public string LastName => "Arefzadeh";
+        public Guid UserId => new Guid("4692D21F-3B31-4B41-A5D4-2A9AF937147E");
 
         public CustomerBuilder()
         {
@@ -22,7 +23,7 @@ namespace UnitTests.Builders
 
         public Customer WithDefaultValue()
         {
-            return _customer = new Customer(NationalCode, FirstName, LastName);
+            return _customer = Customer.Create(NationalCode, FirstName, LastName, UserId);
         }
     }
 }

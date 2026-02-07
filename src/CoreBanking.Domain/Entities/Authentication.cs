@@ -7,7 +7,10 @@ namespace CoreBanking.Domain.Entities
 {
     public class Authentication : BaseEntity, IAggregateRoot
     {
-        public Authentication(string nationalCode, bool centralBankCreditCheckPassed, bool civilRegistryVerified, bool policeClearancePassed)
+        private Authentication(string nationalCode,
+                               bool centralBankCreditCheckPassed,
+                               bool civilRegistryVerified,
+                               bool policeClearancePassed)
         {
             Guard.Against.NullOrEmpty(nationalCode, nameof(nationalCode));
 
@@ -26,11 +29,17 @@ namespace CoreBanking.Domain.Entities
         public bool PoliceClearancePassed { get; private set; }
         public DateTime CreatedAt { get; private set; } = DateTime.Now;
 
-        public static Authentication Create(Authentication authentication, Guid userId)
+        public static Authentication Create(string nationalCode,
+                                            bool centralBankCreditCheckPassed,
+                                            bool civilRegistryVerified,
+                                            bool policeClearancePassed,
+                                            Guid userId)
         {
-            authentication.AddDomainEvent(
-                new AuthenticationCreatedEvent(authentication, userId)
-            );
+            var authentication = new Authentication(nationalCode,
+                                                    centralBankCreditCheckPassed,
+                                                    civilRegistryVerified,
+                                                    policeClearancePassed);
+            authentication.AddDomainEvent(new AuthenticationCreatedEvent(authentication, userId));
             return authentication;
         }
     }

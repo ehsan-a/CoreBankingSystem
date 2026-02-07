@@ -7,7 +7,7 @@ namespace CoreBanking.Domain.Entities
 {
     public class Customer : BaseEntity, ISoftDeletable, IAggregateRoot
     {
-        public Customer(string nationalCode, string firstName, string lastName)
+        private Customer(string nationalCode, string firstName, string lastName)
         {
             Guard.Against.NullOrEmpty(nationalCode, nameof(nationalCode));
             Guard.Against.NullOrEmpty(firstName, nameof(firstName));
@@ -31,11 +31,10 @@ namespace CoreBanking.Domain.Entities
         private readonly List<Account> _accounts = new List<Account>();
         public IReadOnlyCollection<Account>? Accounts => _accounts.AsReadOnly();
 
-        public static Customer Create(Customer customer, Guid userId)
+        public static Customer Create(string nationalCode, string firstName, string lastName, Guid userId)
         {
-            customer.AddDomainEvent(
-                new CustomerCreatedEvent(customer, userId)
-            );
+            var customer = new Customer(nationalCode, firstName, lastName);
+            customer.AddDomainEvent(new CustomerCreatedEvent(customer, userId));
             return customer;
         }
 

@@ -7,6 +7,7 @@ namespace UnitTests.Builders
         private Authentication _authentication;
 
         public string NationalCode => "0024264788";
+        public Guid UserId => new Guid("4692D21F-3B31-4B41-A5D4-2A9AF937147E");
         public bool CentralBankCreditCheckPassed => true;
         public bool CivilRegistryVerified => true;
         public bool PoliceClearancePassed => true;
@@ -23,7 +24,7 @@ namespace UnitTests.Builders
 
         public Authentication WithDefaultValue()
         {
-            return _authentication = new Authentication(NationalCode, CentralBankCreditCheckPassed, CivilRegistryVerified, PoliceClearancePassed);
+            return _authentication = Authentication.Create(NationalCode, CentralBankCreditCheckPassed, CivilRegistryVerified, PoliceClearancePassed, UserId);
         }
     }
 }

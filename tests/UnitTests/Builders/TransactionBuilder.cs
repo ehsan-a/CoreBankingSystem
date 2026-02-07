@@ -9,7 +9,9 @@ namespace UnitTests.Builders
 
         public Guid DebitAccountId => new Guid("3692D21F-3B31-4B41-A5D4-2A9AF937147E");
         public Guid CreditAccountId => new Guid("4692D21F-3B31-4B41-A5D4-2A9AF937147E");
+        public Guid UserId => new Guid("5692D21F-3B31-4B41-A5D4-2A9AF937147E");
         public decimal Amount => 100;
+        public string IdempotencyKey => "1";
         public string Description => "Unit Testing";
         public TransactionType Type => TransactionType.Transfer;
 
@@ -25,7 +27,7 @@ namespace UnitTests.Builders
 
         public Transaction WithDefaultValue()
         {
-            return _transaction = new Transaction(DebitAccountId, CreditAccountId, Amount, Description, Type);
+            return _transaction = Transaction.Create(DebitAccountId, CreditAccountId, Amount, Description, Type, IdempotencyKey, UserId);
         }
     }
 }

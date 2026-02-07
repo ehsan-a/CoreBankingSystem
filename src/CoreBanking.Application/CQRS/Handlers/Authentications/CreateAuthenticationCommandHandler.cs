@@ -27,10 +27,14 @@ namespace CoreBanking.Application.CQRS.Handlers.Authentications
             {
                 throw new ConflictException("Authentication already exists.");
             }
-            var authentication = _mapper.Map<Authentication>(request);
-            await _authenticationRepository.AddAsync(authentication, cancellationToken);
+            var authentication = Authentication.Create(
+                request.NationalCode,
+                request.CentralBankCreditCheckPassed,
+                request.CivilRegistryVerified,
+                request.PoliceClearancePassed,
+                request.UserId);
 
-            Authentication.Create(authentication, request.UserId);
+            await _authenticationRepository.AddAsync(authentication, cancellationToken);
 
             await _authenticationRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
 

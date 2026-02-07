@@ -33,10 +33,8 @@ namespace CoreBanking.Application.CQRS.Handlers.Accounts
                 throw new NotFoundException("Customer", request.CustomerId);
             }
             var accountNumber = await _numberGenerator.GenerateAccountNumberAsync();
-            var account = new Account(accountNumber, request.CustomerId);
+            var account = Account.Create(accountNumber, request.CustomerId, request.UserId);
             await _accountRepository.AddAsync(account, cancellationToken);
-
-            Account.Create(account, request.UserId);
 
             await _accountRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
             return _mapper.Map<AccountResponseDto>(account);

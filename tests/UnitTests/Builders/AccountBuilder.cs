@@ -11,6 +11,7 @@ namespace UnitTests.Builders
 
         public string AccountNumber => "101000000001";
         public Guid CustomerId => new Guid("3692D21F-3B31-4B41-A5D4-2A9AF937147E");
+        public Guid UserId => new Guid("4692D21F-3B31-4B41-A5D4-2A9AF937147E");
 
         public AccountBuilder()
         {
@@ -24,7 +25,7 @@ namespace UnitTests.Builders
 
         public Account WithDefaultValue()
         {
-            return _account = new Account(AccountNumber, CustomerId);
+            return _account = Account.Create(AccountNumber, CustomerId, UserId);
         }
     }
 }

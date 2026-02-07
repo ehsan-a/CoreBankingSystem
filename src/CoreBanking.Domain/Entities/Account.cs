@@ -9,7 +9,7 @@ namespace CoreBanking.Domain.Entities
 {
     public class Account : BaseEntity, ISoftDeletable, IAggregateRoot
     {
-        public Account(string accountNumber, Guid customerId)
+        private Account(string accountNumber, Guid customerId)
         {
             Guard.Against.NullOrEmpty(customerId, nameof(customerId));
             Guard.Against.NullOrEmpty(accountNumber, nameof(accountNumber));
@@ -55,11 +55,10 @@ namespace CoreBanking.Domain.Entities
             Status = status;
         }
 
-        public static Account Create(Account account, Guid userId)
+        public static Account Create(string accountNumber, Guid customerId, Guid userId)
         {
-            account.AddDomainEvent(
-                new AccountCreatedEvent(account, userId)
-            );
+            var account = new Account(accountNumber, customerId);
+            account.AddDomainEvent(new AccountCreatedEvent(account, userId));
             return account;
         }
 

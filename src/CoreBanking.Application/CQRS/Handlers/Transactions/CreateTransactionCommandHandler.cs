@@ -48,9 +48,16 @@ namespace CoreBanking.Application.CQRS.Handlers.Transactions
                 from.Debit(request.Amount);
                 to.Credit(request.Amount);
 
-                var transaction = _mapper.Map<Transaction>(request);
+                var transaction = Transaction.Create(
+                    request.DebitAccountId,
+                    request.CreditAccountId,
+                    request.Amount,
+                    request.Description,
+                    request.Type,
+                    request.IdempotencyKey,
+                    request.UserId);
+
                 await _transactionRepository.AddAsync(transaction, cancellationToken);
-                Transaction.Create(transaction, request.IdempotencyKey, request.UserId);
 
                 await _transactionRepository.UnitOfWork.CommitTransactionAsync(_transactionRepository.UnitOfWork.GetCurrentTransaction());
                 return _mapper.Map<TransactionResponseDto>(transaction);

@@ -8,7 +8,7 @@ namespace CoreBanking.Domain.Entities
 {
     public class Transaction : BaseEntity, IAggregateRoot
     {
-        public Transaction(
+        private Transaction(
             Guid debitAccountId,
             Guid creditAccountId,
             decimal amount,
@@ -40,11 +40,17 @@ namespace CoreBanking.Domain.Entities
         public Account? DebitAccount { get; private set; }
         public Account? CreditAccount { get; private set; }
 
-        public static Transaction Create(Transaction transaction, string idempotencyKey, Guid userId)
+        public static Transaction Create(
+            Guid debitAccountId,
+            Guid creditAccountId,
+            decimal amount,
+            string description,
+            TransactionType type,
+            string idempotencyKey,
+            Guid userId)
         {
-            transaction.AddDomainEvent(
-                new TransactionCreatedEvent(transaction, idempotencyKey, userId)
-            );
+            var transaction = new Transaction(debitAccountId, creditAccountId, amount, description, type);
+            transaction.AddDomainEvent(new TransactionCreatedEvent(transaction, idempotencyKey, userId));
             return transaction;
         }
     }
